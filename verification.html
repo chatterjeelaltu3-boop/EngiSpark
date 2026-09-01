@@ -1,1 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Verification - EngiSpark</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="page center">
+
+    <!-- Verification Card -->
+    <main class="card auth">
+
+        <!-- Logo -->
+        <img
+            src="engispark-logo.png"
+            alt="EngiSpark Logo"
+            class="logo"
+        >
+
+        <!-- Page Title -->
+        <h1>🔐 Verification</h1>
+
+        <!-- Full Name -->
+        <label for="fullName">
+            Your Full Name
+        </label>
+
+        <input
+            type="text"
+            id="fullName"
+            placeholder="Enter your full name"
+            autocomplete="name"
+        >
+
+        <!-- CAPTCHA -->
+        <div class="captcha">
+
+            <b id="captchaText">
+                Loading...
+            </b>
+
+            <button
+                type="button"
+                onclick="generateCaptcha()"
+                aria-label="Generate new CAPTCHA"
+            >
+                ↻
+            </button>
+
+        </div>
+
+        <!-- CAPTCHA Input -->
+        <label for="captchaInput">
+            Enter CAPTCHA
+        </label>
+
+        <input
+            type="text"
+            id="captchaInput"
+            placeholder="Type the CAPTCHA"
+            autocomplete="off"
+        >
+
+        <!-- Error Message -->
+        <p
+            id="verifyError"
+            class="error"
+            role="alert"
+        ></p>
+
+        <!-- Verify Button -->
+        <button
+            type="button"
+            class="primary full"
+            onclick="verifyUser()"
+        >
+            Verify
+        </button>
+
+    </main>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+
+</body>
+
+</html>
