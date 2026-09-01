@@ -1,181 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="bn">
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Verification - EngiSpark</title>
-
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EngiSpark — Verification</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="engispark-logo.png">
 </head>
-
-<body class="page verification-page">
-
-    <!-- =================================================
-         VERIFICATION SECTION
-         ================================================= -->
-
-    <main class="verification-wrapper">
-
-        <section class="card auth">
-
-            <!-- Logo -->
-            <div class="verification-logo">
-
-                <img
-                    src="engispark-logo.png"
-                    alt="EngiSpark Logo"
-                >
-
+<body>
+    <div class="verification-container">
+        <div class="verification-box">
+            <div class="verification-header">
+                <img src="engispark-logo.png" alt="EngiSpark Logo" class="verification-logo">
+                <h2>🔐 ভেরিফিকেশন</h2>
+                <p class="verification-sub">নিচে আপনার তথ্য দিন</p>
             </div>
-
-
-            <!-- Title -->
-
-            <h1>
-                🔐 Verification
-            </h1>
-
-            <p class="verification-subtitle">
-                Verify yourself to continue to EngiSpark.
-            </p>
-
-
-            <!-- Full Name -->
-
-            <label for="fullName">
-                Your Full Name
-            </label>
-
-            <input
-                type="text"
-                id="fullName"
-                placeholder="Enter your full name"
-                autocomplete="name"
-            >
-
-
-            <!-- CAPTCHA -->
-
-            <label>
-                CAPTCHA
-            </label>
-
-            <div class="captcha">
-
-                <span
-                    id="captchaText"
-                    class="captcha-text"
-                >
-                    Loading...
-                </span>
-
-                <button
-                    type="button"
-                    onclick="generateCaptcha()"
-                    class="captcha-refresh"
-                    aria-label="Generate new CAPTCHA"
-                >
-                    ↻
-                </button>
-
+            <div class="verification-form">
+                <div class="form-group">
+                    <label for="fullName">আপনার পুরো নাম লিখুন</label>
+                    <input type="text" id="fullName" placeholder="যেমন: Ayush Chatterjee" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label>ক্যাপচা কোড</label>
+                    <div class="captcha-box">
+                        <span id="captchaText" class="captcha-text">X7#kL9</span>
+                        <button type="button" id="refreshCaptcha" class="btn-refresh">⟳</button>
+                    </div>
+                    <input type="text" id="captchaInput" placeholder="ক্যাপচা টাইপ করুন" class="form-input">
+                </div>
+                <button id="verifyBtn" class="btn-primary btn-verify">✅ ভেরিফাই করুন</button>
+                <p id="errorMsg" class="error-message" style="display:none;">❌ ক্যাপচা সঠিক নয়, আবার চেষ্টা করুন</p>
             </div>
-
-
-            <!-- CAPTCHA Input -->
-
-            <label for="captchaInput">
-                Enter CAPTCHA
-            </label>
-
-            <input
-                type="text"
-                id="captchaInput"
-                placeholder="Type the CAPTCHA"
-                autocomplete="off"
-                maxlength="5"
-            >
-
-
-            <!-- Error -->
-
-            <p
-                id="verifyError"
-                class="error"
-                role="alert"
-            ></p>
-
-
-            <!-- Verify -->
-
-            <button
-                type="button"
-                class="primary full"
-                onclick="verifyUser()"
-            >
-                Verify & Continue
-            </button>
-
-        </section>
-
-    </main>
-
-
-    <!-- =================================================
-         FOOTER
-         ================================================= -->
-
-    <footer class="site-footer">
-
-        <div class="footer-container">
-
-            <div class="footer-logo">
-
-                <img
-                    src="engispark-logo.png"
-                    alt="EngiSpark Logo"
-                >
-
-            </div>
-
-            <h3 class="footer-brand">
-                EngiSpark
-            </h3>
-
-            <p class="footer-tagline">
-                Ignite Your Engineering Mind
-            </p>
-
-            <p class="footer-founder">
-                Founder:
-                <strong>EngiSpark.com</strong>
-            </p>
-
-            <p class="footer-copy">
-                © 2026 EngiSpark. All rights reserved.
-            </p>
-
         </div>
-
-    </footer>
-
-
-    <!-- =================================================
-         JAVASCRIPT
-         ================================================= -->
-
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="engispark-logo.png" alt="EngiSpark Logo" class="footer-logo-img">
+                    <span class="footer-app-name">EngiSpark</span>
+                </div>
+                <p class="footer-tagline">Ignite Your Engineering Mind</p>
+                <p class="footer-founder">
+                    Founder: <a href="https://engispark.com" target="_blank">EngiSpark.com</a>
+                </p>
+                <p class="footer-copyright">© 2026 EngiSpark. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
     <script src="script.js"></script>
-
 </body>
-
 </html>
