@@ -1,1 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Login - EngiSpark</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="page center">
+
+    <!-- ================= ADMIN LOGIN CARD ================= -->
+
+    <main class="card auth">
+
+        <!-- Logo -->
+
+        <img
+            src="engispark-logo.png"
+            alt="EngiSpark Logo"
+            class="logo"
+        >
+
+        <!-- Title -->
+
+        <h1>
+            🔐 Admin Login
+        </h1>
+
+        <p class="muted">
+            Enter your administrator credentials
+        </p>
+
+
+        <!-- Username -->
+
+        <label for="adminUsername">
+            Username
+        </label>
+
+        <input
+            type="text"
+            id="adminUsername"
+            placeholder="Enter username"
+            autocomplete="username"
+        >
+
+
+        <!-- Password -->
+
+        <label for="adminPassword">
+            Password
+        </label>
+
+        <input
+            type="password"
+            id="adminPassword"
+            placeholder="Enter password"
+            autocomplete="current-password"
+        >
+
+
+        <!-- Error Message -->
+
+        <p
+            id="adminLoginError"
+            class="error"
+            role="alert"
+        ></p>
+
+
+        <!-- Login Button -->
+
+        <button
+            type="button"
+            class="primary full"
+            onclick="adminLogin()"
+        >
+            Login
+        </button>
+
+
+        <!-- Back Button -->
+
+        <button
+            type="button"
+            class="secondary full"
+            onclick="location.href='dashboard.html'"
+        >
+            ← Back to Dashboard
+        </button>
+
+    </main>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer>
+
+        <div>
+            <strong>EngiSpark</strong>
+            — Ignite Your Engineering Mind
+        </div>
+
+        <div>
+            Made by Ayush Chatterjee
+        </div>
+
+        <div>
+            © 2026 EngiSpark. All rights reserved.
+        </div>
+
+    </footer>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
