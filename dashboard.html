@@ -1,1 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard - EngiSpark</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="page">
+
+    <!-- Header -->
+    <header>
+
+        <!-- Logo + App Name -->
+        <a href="dashboard.html" class="brand">
+            <img
+                src="engispark-logo.png"
+                alt="EngiSpark Logo"
+            >
+            <span>EngiSpark</span>
+        </a>
+
+        <!-- Admin Button -->
+        <button
+            type="button"
+            class="secondary"
+            onclick="location.href='admin-login.html'"
+        >
+            🔐 Admin
+        </button>
+
+    </header>
+
+
+    <!-- Main Content -->
+    <main class="container">
+
+        <!-- Welcome -->
+        <section class="welcome-section">
+
+            <h1>
+                👋 Welcome, <span id="userName">Student</span>!
+            </h1>
+
+            <p class="muted">
+                Choose your quiz preferences and start learning.
+            </p>
+
+        </section>
+
+
+        <!-- Welcome Popup -->
+        <div
+            id="welcomePopup"
+            class="notice"
+        >
+
+            <span>
+                🎓 <b>Welcome to EngiSpark!</b>
+            </span>
+
+            <button
+                type="button"
+                onclick="this.parentElement.remove()"
+                aria-label="Close"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <!-- Quiz Section -->
+        <section class="card quiz-section">
+
+            <!-- Start Quiz Tab -->
+            <button
+                type="button"
+                class="quiztab"
+                onclick="toggleQuizConfig()"
+            >
+                📝 Start Quiz
+            </button>
+
+
+            <!-- Quiz Configuration -->
+            <div
+                id="quizConfig"
+                class="quiz-config"
+            >
+
+                <div class="grid">
+
+                    <!-- Year -->
+                    <div>
+                        <label for="yearSelect">
+                            Year
+                        </label>
+
+                        <select id="yearSelect">
+                            <option value="1st Year">
+                                1st Year
+                            </option>
+                        </select>
+                    </div>
+
+
+                    <!-- Department -->
+                    <div>
+                        <label for="departmentSelect">
+                            Department
+                        </label>
+
+                        <select id="departmentSelect">
+                            <!-- Departments will be loaded by JavaScript -->
+                        </select>
+                    </div>
+
+
+                    <!-- Subject -->
+                    <div>
+                        <label for="subjectSelect">
+                            Subject
+                        </label>
+
+                        <select id="subjectSelect">
+                            <!-- Subjects will be loaded by JavaScript -->
+                        </select>
+                    </div>
+
+
+                    <!-- Difficulty -->
+                    <div>
+                        <label for="difficultySelect">
+                            Difficulty
+                        </label>
+
+                        <select id="difficultySelect">
+
+                            <option value="Easy">
+                                Easy
+                            </option>
+
+                            <option
+                                value="Medium"
+                                selected
+                            >
+                                Medium
+                            </option>
+
+                            <option value="Hard">
+                                Hard
+                            </option>
+
+                        </select>
+                    </div>
+
+
+                    <!-- Time -->
+                    <div>
+                        <label for="timeSelect">
+                            Time
+                        </label>
+
+                        <select id="timeSelect">
+
+                            <option value="10">
+                                10 minutes
+                            </option>
+
+                            <option
+                                value="15"
+                                selected
+                            >
+                                15 minutes
+                            </option>
+
+                            <option value="20">
+                                20 minutes
+                            </option>
+
+                        </select>
+                    </div>
+
+                </div>
+
+
+                <!-- Error Message -->
+                <p
+                    id="quizStartError"
+                    class="error"
+                    role="alert"
+                ></p>
+
+
+                <!-- Start Quiz Button -->
+                <button
+                    type="button"
+                    class="primary full"
+                    onclick="startQuiz()"
+                >
+                    🚀 Start Quiz
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer>
+
+        <div>
+            <strong>EngiSpark</strong>
+            — Ignite Your Engineering Mind
+        </div>
+
+        <div>
+            Made by Ayush Chatterjee
+        </div>
+
+        <div>
+            <a
+                href="https://founderappernam.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                founderappernam.com
+            </a>
+        </div>
+
+        <div>
+            © 2026 EngiSpark. All rights reserved.
+        </div>
+
+    </footer>
+
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+
+</body>
+
+</html>
