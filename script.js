@@ -26,13 +26,24 @@ const DEFAULT_TIMER = 15;
 
 
 /* =========================================================
+   ENGISPARK AI API
+   ========================================================= */
+
+const ENGISPARK_AI_API =
+    "https://engispark-api.engisparkquiz2026.workers.dev";
+
+
+/* =========================================================
    LOCAL STORAGE HELPERS
    ========================================================= */
 
 function getDepartments() {
-    const data = localStorage.getItem("engiSparkDepartments");
+
+    const data =
+        localStorage.getItem("engiSparkDepartments");
 
     if (!data) {
+
         localStorage.setItem(
             "engiSparkDepartments",
             JSON.stringify(DEFAULT_DEPARTMENTS)
@@ -42,14 +53,18 @@ function getDepartments() {
     }
 
     try {
+
         return JSON.parse(data);
+
     } catch {
+
         return [...DEFAULT_DEPARTMENTS];
     }
 }
 
 
 function saveDepartments(data) {
+
     localStorage.setItem(
         "engiSparkDepartments",
         JSON.stringify(data)
@@ -58,9 +73,12 @@ function saveDepartments(data) {
 
 
 function getSubjects() {
-    const data = localStorage.getItem("engiSparkSubjects");
+
+    const data =
+        localStorage.getItem("engiSparkSubjects");
 
     if (!data) {
+
         localStorage.setItem(
             "engiSparkSubjects",
             JSON.stringify(DEFAULT_SUBJECTS)
@@ -70,14 +88,18 @@ function getSubjects() {
     }
 
     try {
+
         return JSON.parse(data);
+
     } catch {
+
         return [...DEFAULT_SUBJECTS];
     }
 }
 
 
 function saveSubjects(data) {
+
     localStorage.setItem(
         "engiSparkSubjects",
         JSON.stringify(data)
@@ -86,9 +108,12 @@ function saveSubjects(data) {
 
 
 function getTimerSetting() {
-    const data = localStorage.getItem("engiSparkTimer");
+
+    const data =
+        localStorage.getItem("engiSparkTimer");
 
     if (!data) {
+
         localStorage.setItem(
             "engiSparkTimer",
             DEFAULT_TIMER
@@ -102,6 +127,7 @@ function getTimerSetting() {
 
 
 function saveTimerSetting(minutes) {
+
     localStorage.setItem(
         "engiSparkTimer",
         minutes
@@ -139,7 +165,9 @@ function generateCaptcha() {
         document.getElementById("captchaCode");
 
     if (captchaElement) {
-        captchaElement.textContent = captchaCode;
+
+        captchaElement.textContent =
+            captchaCode;
     }
 }
 
@@ -168,6 +196,7 @@ function verifyUser() {
     if (!name) {
 
         if (errorElement) {
+
             errorElement.textContent =
                 "Please enter your full name.";
         }
@@ -178,6 +207,7 @@ function verifyUser() {
     if (!enteredCaptcha) {
 
         if (errorElement) {
+
             errorElement.textContent =
                 "Please enter the CAPTCHA.";
         }
@@ -191,6 +221,7 @@ function verifyUser() {
     ) {
 
         if (errorElement) {
+
             errorElement.textContent =
                 "CAPTCHA is incorrect, please try again.";
         }
@@ -202,7 +233,6 @@ function verifyUser() {
         return;
     }
 
-
     localStorage.setItem(
         "engiSparkUserName",
         name
@@ -212,7 +242,6 @@ function verifyUser() {
         "engiSparkVerified",
         "true"
     );
-
 
     window.location.href =
         "dashboard.html";
@@ -234,13 +263,11 @@ function loadDashboard() {
     const name =
         localStorage.getItem("engiSparkUserName");
 
-
     if (nameElement) {
 
         nameElement.textContent =
             name || "Student";
     }
-
 
     if (popup) {
 
@@ -252,7 +279,6 @@ function loadDashboard() {
 
         }, 4000);
     }
-
 
     populateDashboardDepartments();
     populateDashboardSubjects();
@@ -290,9 +316,11 @@ function populateDashboardDepartments() {
         const option =
             document.createElement("option");
 
-        option.value = department;
+        option.value =
+            department;
 
-        option.textContent = department;
+        option.textContent =
+            department;
 
         select.appendChild(option);
 
@@ -319,9 +347,11 @@ function populateDashboardSubjects() {
         const option =
             document.createElement("option");
 
-        option.value = subject;
+        option.value =
+            subject;
 
-        option.textContent = subject;
+        option.textContent =
+            subject;
 
         select.appendChild(option);
 
@@ -347,7 +377,6 @@ function startQuiz() {
     const time =
         document.getElementById("quizTime")?.value;
 
-
     const quizSettings = {
 
         year: "1st Year",
@@ -365,12 +394,10 @@ function startQuiz() {
             Number(time) || getTimerSetting()
     };
 
-
     localStorage.setItem(
         "engiSparkQuizSettings",
         JSON.stringify(quizSettings)
     );
-
 
     window.location.href =
         "quiz.html";
@@ -402,12 +429,51 @@ let quizTimerInterval = null;
 
 async function loadQuestions() {
 
+    /*
+     * questions.json was previously used here.
+     * Since it may no longer exist, first try localStorage.
+     */
+
+    const savedQuestions =
+        localStorage.getItem(
+            "engiSparkQuestions"
+        );
+
+    if (savedQuestions) {
+
+        try {
+
+            const parsed =
+                JSON.parse(savedQuestions);
+
+            if (Array.isArray(parsed)) {
+
+                allQuestions = parsed;
+
+                return allQuestions;
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Saved questions could not be loaded:",
+                error
+            );
+        }
+    }
+
+
+    /*
+     * Fallback to questions.json if available.
+     */
+
     try {
 
         const response =
             await fetch("questions.json");
 
         if (!response.ok) {
+
             throw new Error(
                 "Unable to load questions.json"
             );
@@ -421,37 +487,21 @@ async function loadQuestions() {
                 ? data
                 : [];
 
+        /*
+         * Save successfully loaded questions
+         * locally for future use.
+         */
+
+        if (allQuestions.length > 0) {
+
+            saveQuestions();
+        }
+
         return allQuestions;
 
     } catch (error) {
 
         console.error(error);
-
-        /*
-         * If questions.json cannot be loaded,
-         * try questions saved by Admin.
-         */
-
-        const savedQuestions =
-            localStorage.getItem(
-                "engiSparkQuestions"
-            );
-
-        if (savedQuestions) {
-
-            try {
-
-                allQuestions =
-                    JSON.parse(savedQuestions);
-
-                return allQuestions;
-
-            } catch {
-
-                allQuestions = [];
-
-            }
-        }
 
         return [];
     }
@@ -523,19 +573,12 @@ async function prepareQuiz() {
         return;
     }
 
-
     const settings =
         JSON.parse(settingsData);
-
 
     const questions =
         await loadQuestions();
 
-
-    /*
-     * Filter according to
-     * Department, Subject and Difficulty
-     */
 
     let filteredQuestions =
         questions.filter(question => {
@@ -565,7 +608,7 @@ async function prepareQuiz() {
 
     /*
      * If there are not enough matching questions,
-     * use subject + department questions.
+     * use department + subject questions.
      */
 
     if (filteredQuestions.length < 10) {
@@ -592,7 +635,7 @@ async function prepareQuiz() {
 
 
     /*
-     * Final fallback
+     * Final fallback.
      */
 
     if (filteredQuestions.length < 10) {
@@ -610,7 +653,7 @@ async function prepareQuiz() {
 
 
     /*
-     * Shuffle options of every question
+     * Shuffle options of every question.
      */
 
     quizQuestions =
@@ -640,12 +683,16 @@ async function prepareQuiz() {
 
             ];
 
-
             const shuffledOptions =
                 shuffleArray(
                     optionObjects
                 );
 
+            /*
+             * Important:
+             * correctAnswer stores the ORIGINAL option key.
+             * The shuffled option keeps that same key.
+             */
 
             return {
                 ...question,
@@ -704,9 +751,10 @@ function displayQuizSettings() {
     const settings =
         JSON.parse(settingsData);
 
-
     const subjectElement =
-        document.getElementById("quizSubject");
+        document.getElementById(
+            "quizSubject"
+        );
 
     if (subjectElement) {
 
@@ -731,12 +779,10 @@ function displayQuestion() {
         return;
     }
 
-
     const numberElement =
         document.getElementById(
             "questionNumber"
         );
-
 
     if (numberElement) {
 
@@ -746,12 +792,10 @@ function displayQuestion() {
             }/${quizQuestions.length}`;
     }
 
-
     const questionText =
         document.getElementById(
             "questionText"
         );
-
 
     if (questionText) {
 
@@ -759,17 +803,14 @@ function displayQuestion() {
             question.question;
     }
 
-
     const optionsContainer =
         document.getElementById(
             "options"
         );
 
-
     if (!optionsContainer) {
         return;
     }
-
 
     optionsContainer.innerHTML = "";
 
@@ -869,7 +910,6 @@ function selectAnswer(answer) {
         currentQuestionIndex
     ] = answer;
 
-
     localStorage.setItem(
         "engiSparkUserAnswers",
         JSON.stringify(userAnswers)
@@ -883,7 +923,6 @@ function updateOptionStyles() {
         document.querySelectorAll(
             ".option"
         );
-
 
     options.forEach(option => {
 
@@ -944,12 +983,6 @@ function nextQuestion() {
         return;
     }
 
-
-    /*
-     * On the last question,
-     * Next behaves like Submit.
-     */
-
     submitQuiz(false);
 }
 
@@ -1008,6 +1041,10 @@ function updateProgress() {
         return;
     }
 
+    if (quizQuestions.length === 0) {
+        progress.style.width = "0%";
+        return;
+    }
 
     const percentage =
         (
@@ -1017,7 +1054,6 @@ function updateProgress() {
             /
             quizQuestions.length
         ) * 100;
-
 
     progress.style.width =
         `${percentage}%`;
@@ -1034,16 +1070,13 @@ function startQuizTimer(minutes) {
         quizTimerInterval
     );
 
-
     let remainingSeconds =
         Number(minutes) * 60;
-
 
     const timerElement =
         document.getElementById(
             "timer"
         );
-
 
     const timerBox =
         document.querySelector(
@@ -1121,10 +1154,6 @@ function submitQuiz(autoSubmit = false) {
         return;
     }
 
-
-    /*
-     * Prevent accidental duplicate submit
-     */
 
     if (
         localStorage.getItem(
@@ -1249,13 +1278,17 @@ function submitQuiz(autoSubmit = false) {
 
     const result = {
 
-        score: correct,
+        score:
+            correct,
 
-        total: total,
+        total:
+            total,
 
-        percentage: percentage,
+        percentage:
+            percentage,
 
-        correct: correct,
+        correct:
+            correct,
 
         wrong:
             total - correct,
@@ -1432,17 +1465,20 @@ function displayStars(percentage) {
 
 
     if (percentage >= 90) {
+
         count = 5;
 
     } else if (percentage >= 80) {
+
         count = 4;
 
     } else if (percentage >= 60) {
+
         count = 3;
 
     } else if (percentage >= 40) {
-        count = 2;
 
+        count = 2;
     }
 
 
@@ -1507,13 +1543,14 @@ function displayWrongAnswers(
                     "div"
                 );
 
+
             div.className =
                 "wrong-answer";
 
 
             div.innerHTML = `
                 <h3>
-                    Question ${item.questionNumber}: 
+                    Question ${item.questionNumber}:
                     ${escapeHTML(item.question)}
                 </h3>
 
@@ -1556,7 +1593,6 @@ function retakeQuiz() {
         "engiSparkUserAnswers"
     );
 
-
     window.location.href =
         "dashboard.html";
 }
@@ -1585,10 +1621,6 @@ function adminLogin() {
             "adminLoginError"
         );
 
-
-    /*
-     * Basic client-side access gate.
-     */
 
     if (
         username === "EngiSpark" &&
@@ -1844,6 +1876,8 @@ function addDepartment() {
 
     populateDashboardDepartments();
 
+    populateAIDepartments();
+
 
     showAdminMessage(
         "Department added successfully."
@@ -1902,6 +1936,8 @@ function deleteDepartment(
     populateQuestionDepartmentSelect();
 
     populateDashboardDepartments();
+
+    populateAIDepartments();
 
 
     showAdminMessage(
@@ -1978,6 +2014,7 @@ function renderDepartmentList() {
             container.appendChild(
                 div
             );
+
         }
     );
 }
@@ -2055,6 +2092,8 @@ function addSubject() {
 
     populateDashboardSubjects();
 
+    populateAISubjects();
+
 
     showAdminMessage(
         "Subject added successfully."
@@ -2113,6 +2152,8 @@ function deleteSubject(
     populateQuestionSubjectSelect();
 
     populateDashboardSubjects();
+
+    populateAISubjects();
 
 
     showAdminMessage(
@@ -2189,6 +2230,7 @@ function renderSubjectList() {
             container.appendChild(
                 div
             );
+
         }
     );
 }
@@ -2226,15 +2268,19 @@ function populateQuestionSubjectSelect() {
                     "option"
                 );
 
+
             option.value =
                 subject;
+
 
             option.textContent =
                 subject;
 
+
             select.appendChild(
                 option
             );
+
         }
     );
 }
@@ -2268,15 +2314,19 @@ function populateQuestionDepartmentSelect() {
                     "option"
                 );
 
+
             option.value =
                 department;
+
 
             option.textContent =
                 department;
 
+
             select.appendChild(
                 option
             );
+
         }
     );
 }
@@ -2503,6 +2553,7 @@ function resetQuestionForm() {
 
 
     if (form) {
+
         form.reset();
     }
 
@@ -2836,6 +2887,16 @@ function renderAdminQuestions(
                         )}
                     </span>
 
+                    ${
+                        question.source === "AI"
+                            ? `
+                                <span class="badge">
+                                    🤖 AI
+                                </span>
+                            `
+                            : ""
+                    }
+
                 </div>
 
 
@@ -2899,6 +2960,26 @@ function renderAdminQuestions(
                 </div>
 
 
+                ${
+                    question.explanation
+                        ? `
+                            <div style="
+                                margin-top:12px;
+                                padding:10px;
+                                border-radius:8px;
+                            ">
+                                <strong>
+                                    Explanation:
+                                </strong>
+                                ${escapeHTML(
+                                    question.explanation
+                                )}
+                            </div>
+                        `
+                        : ""
+                }
+
+
                 <div class="admin-question-actions">
 
                     <button
@@ -2930,6 +3011,7 @@ function renderAdminQuestions(
             container.appendChild(
                 article
             );
+
         }
     );
 }
@@ -2970,6 +3052,764 @@ function escapeHTML(value) {
         value ?? "";
 
     return div.innerHTML;
+}
+
+
+/* =========================================================
+   AI QUESTION GENERATOR
+   ========================================================= */
+
+function createAIQuestionPanel() {
+
+    if (
+        location.pathname
+            .split("/")
+            .pop() !==
+        "admin-panel.html"
+    ) {
+        return;
+    }
+
+
+    if (
+        document.getElementById(
+            "aiQuestionGenerator"
+        )
+    ) {
+        return;
+    }
+
+
+    const panel =
+        document.createElement(
+            "section"
+        );
+
+
+    panel.id =
+        "aiQuestionGenerator";
+
+
+    panel.className =
+        "card";
+
+
+    panel.innerHTML = `
+
+        <div style="
+            margin-bottom:20px;
+        ">
+
+            <h2>
+                🤖 Generate Questions with AI
+            </h2>
+
+            <p class="muted">
+                Automatically generate new MCQ questions using EngiSpark AI.
+            </p>
+
+        </div>
+
+
+        <div style="
+            display:grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(180px, 1fr));
+            gap:15px;
+        ">
+
+
+            <div>
+
+                <label for="aiDepartment">
+                    Department
+                </label>
+
+                <select
+                    id="aiDepartment"
+                ></select>
+
+            </div>
+
+
+            <div>
+
+                <label for="aiSubject">
+                    Subject
+                </label>
+
+                <select
+                    id="aiSubject"
+                ></select>
+
+            </div>
+
+
+            <div>
+
+                <label for="aiDifficulty">
+                    Difficulty
+                </label>
+
+                <select
+                    id="aiDifficulty"
+                >
+
+                    <option value="Easy">
+                        Easy
+                    </option>
+
+                    <option
+                        value="Medium"
+                        selected
+                    >
+                        Medium
+                    </option>
+
+                    <option value="Hard">
+                        Hard
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div>
+
+                <label for="aiCount">
+                    Number of Questions
+                </label>
+
+                <select
+                    id="aiCount"
+                >
+
+                    <option value="1">
+                        1
+                    </option>
+
+                    <option
+                        value="3"
+                        selected
+                    >
+                        3
+                    </option>
+
+                    <option value="5">
+                        5
+                    </option>
+
+                    <option value="10">
+                        10
+                    </option>
+
+                    <option value="20">
+                        20
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <button
+            type="button"
+            id="generateAIQuestionsBtn"
+            class="primary full"
+            style="margin-top:20px;"
+            onclick="generateAIQuestions()"
+        >
+            🤖 Generate Questions with AI
+        </button>
+
+
+        <div
+            id="aiGenerationStatus"
+            style="
+                margin-top:15px;
+                display:none;
+                padding:12px;
+                border-radius:8px;
+            "
+        ></div>
+
+    `;
+
+
+    const questionForm =
+        document.getElementById(
+            "questionForm"
+        );
+
+
+    if (
+        questionForm &&
+        questionForm.parentElement
+    ) {
+
+        questionForm.parentElement.insertBefore(
+            panel,
+            questionForm
+        );
+
+    } else {
+
+        document.body.appendChild(
+            panel
+        );
+    }
+
+
+    populateAIDepartments();
+
+    populateAISubjects();
+}
+
+
+/* =========================================================
+   AI DEPARTMENT DROPDOWN
+   ========================================================= */
+
+function populateAIDepartments() {
+
+    const select =
+        document.getElementById(
+            "aiDepartment"
+        );
+
+
+    if (!select) {
+        return;
+    }
+
+
+    const departments =
+        getDepartments();
+
+
+    select.innerHTML = "";
+
+
+    departments.forEach(
+        department => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                department;
+
+
+            option.textContent =
+                department;
+
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+}
+
+
+/* =========================================================
+   AI SUBJECT DROPDOWN
+   ========================================================= */
+
+function populateAISubjects() {
+
+    const select =
+        document.getElementById(
+            "aiSubject"
+        );
+
+
+    if (!select) {
+        return;
+    }
+
+
+    const subjects =
+        getSubjects();
+
+
+    select.innerHTML = "";
+
+
+    subjects.forEach(
+        subject => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                subject;
+
+
+            option.textContent =
+                subject;
+
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+}
+
+
+/* =========================================================
+   AI STATUS
+   ========================================================= */
+
+function showAIStatus(
+    message,
+    type = "loading"
+) {
+
+    const status =
+        document.getElementById(
+            "aiGenerationStatus"
+        );
+
+
+    if (!status) {
+        return;
+    }
+
+
+    status.style.display =
+        "block";
+
+
+    status.textContent =
+        message;
+
+
+    status.className = "";
+
+
+    if (type === "success") {
+
+        status.style.border =
+            "1px solid #10b981";
+
+    } else if (type === "error") {
+
+        status.style.border =
+            "1px solid #ef4444";
+
+    } else {
+
+        status.style.border =
+            "1px solid #2563eb";
+    }
+
+
+    status.style.padding =
+        "12px";
+
+
+    status.style.borderRadius =
+        "8px";
+}
+
+
+/* =========================================================
+   GENERATE AI QUESTIONS
+   ========================================================= */
+
+async function generateAIQuestions() {
+
+    const department =
+        document.getElementById(
+            "aiDepartment"
+        )?.value;
+
+
+    const subject =
+        document.getElementById(
+            "aiSubject"
+        )?.value;
+
+
+    const difficulty =
+        document.getElementById(
+            "aiDifficulty"
+        )?.value ||
+        "Medium";
+
+
+    const count =
+        Number(
+            document.getElementById(
+                "aiCount"
+            )?.value ||
+            3
+        );
+
+
+    const button =
+        document.getElementById(
+            "generateAIQuestionsBtn"
+        );
+
+
+    if (
+        !department ||
+        !subject
+    ) {
+
+        showAIStatus(
+            "Please select a department and subject.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (button) {
+
+        button.disabled =
+            true;
+
+        button.textContent =
+            "⏳ Generating questions...";
+    }
+
+
+    showAIStatus(
+        `AI is generating ${count} question(s)...`,
+        "loading"
+    );
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${ENGISPARK_AI_API}/api/generate-questions`,
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            department:
+                                department,
+
+                            subject:
+                                subject,
+
+                            difficulty:
+                                difficulty,
+
+                            count:
+                                count
+
+                        })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.error ||
+                "AI question generation failed."
+            );
+        }
+
+
+        if (
+            !Array.isArray(
+                data.questions
+            ) ||
+            data.questions.length === 0
+        ) {
+
+            throw new Error(
+                "AI did not return any questions."
+            );
+        }
+
+
+        /*
+         * Load existing local questions.
+         */
+
+        await loadQuestions();
+
+
+        let nextId =
+            getNextQuestionId();
+
+
+        const newQuestions =
+            data.questions
+                .map(
+                    aiQuestion => {
+
+                        const options =
+                            Array.isArray(
+                                aiQuestion.options
+                            )
+                                ? aiQuestion.options
+                                : [];
+
+
+                        if (
+                            options.length !== 4
+                        ) {
+                            return null;
+                        }
+
+
+                        const questionText =
+                            String(
+                                aiQuestion.question ||
+                                ""
+                            ).trim();
+
+
+                        const answerText =
+                            String(
+                                aiQuestion.answer ||
+                                ""
+                            ).trim();
+
+
+                        const explanation =
+                            String(
+                                aiQuestion.explanation ||
+                                ""
+                            ).trim();
+
+
+                        if (
+                            !questionText ||
+                            !answerText
+                        ) {
+                            return null;
+                        }
+
+
+                        /*
+                         * Find the correct option
+                         * by exact text.
+                         */
+
+                        let correctIndex =
+                            options.findIndex(
+                                option =>
+                                    String(option)
+                                        .trim() ===
+                                    answerText
+                            );
+
+
+                        /*
+                         * Case-insensitive fallback.
+                         */
+
+                        if (
+                            correctIndex === -1
+                        ) {
+
+                            correctIndex =
+                                options.findIndex(
+                                    option =>
+                                        String(option)
+                                            .trim()
+                                            .toLowerCase() ===
+                                        answerText
+                                            .toLowerCase()
+                                );
+                        }
+
+
+                        /*
+                         * Skip invalid AI questions.
+                         */
+
+                        if (
+                            correctIndex < 0 ||
+                            correctIndex > 3
+                        ) {
+
+                            return null;
+                        }
+
+
+                        const correctKeys =
+                            [
+                                "A",
+                                "B",
+                                "C",
+                                "D"
+                            ];
+
+
+                        const questionData = {
+
+                            id:
+                                nextId++,
+
+                            year:
+                                "1st Year",
+
+                            subject:
+                                subject,
+
+                            department:
+                                department,
+
+                            difficulty:
+                                difficulty,
+
+                            question:
+                                questionText,
+
+                            optionA:
+                                String(
+                                    options[0]
+                                ).trim(),
+
+                            optionB:
+                                String(
+                                    options[1]
+                                ).trim(),
+
+                            optionC:
+                                String(
+                                    options[2]
+                                ).trim(),
+
+                            optionD:
+                                String(
+                                    options[3]
+                                ).trim(),
+
+                            correctAnswer:
+                                correctKeys[
+                                    correctIndex
+                                ],
+
+                            explanation:
+                                explanation,
+
+                            source:
+                                "AI"
+                        };
+
+
+                        return questionData;
+
+                    }
+                )
+                .filter(Boolean);
+
+
+        if (
+            newQuestions.length === 0
+        ) {
+
+            throw new Error(
+                "AI questions could not be converted into valid EngiSpark questions."
+            );
+        }
+
+
+        /*
+         * Add AI questions to existing questions.
+         */
+
+        allQuestions = [
+            ...allQuestions,
+            ...newQuestions
+        ];
+
+
+        /*
+         * Save in localStorage.
+         */
+
+        saveQuestions();
+
+
+        /*
+         * Refresh Admin Question List.
+         */
+
+        renderAdminQuestions();
+
+
+        showAIStatus(
+            `✅ ${newQuestions.length} question(s) generated and added successfully.`,
+            "success"
+        );
+
+
+        if (button) {
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                "🤖 Generate Questions with AI";
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "AI generation error:",
+            error
+        );
+
+
+        showAIStatus(
+            `❌ ${error.message}`,
+            "error"
+        );
+
+
+        if (button) {
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                "🤖 Generate Questions with AI";
+        }
+    }
 }
 
 
@@ -3055,6 +3895,10 @@ document.addEventListener(
             checkAdminAccess();
 
 
+            /*
+             * Load existing questions.
+             */
+
             await loadQuestions();
 
 
@@ -3097,6 +3941,13 @@ document.addEventListener(
             populateQuestionDepartmentSelect();
 
             renderAdminQuestions();
+
+
+            /*
+             * Create AI Question Generator.
+             */
+
+            createAIQuestionPanel();
         }
 
     }
