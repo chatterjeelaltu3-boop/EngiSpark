@@ -1895,3 +1895,235 @@ button:disabled {
         line-height: 1.5;
     }
 }
+/* =====================================================
+   VERIFICATION PAGE
+   ===================================================== */
+
+.verification-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 30px 16px 0;
+}
+
+.verification-wrapper {
+    width: 100%;
+    max-width: 430px;
+    margin: 0 auto;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.verification-wrapper .auth {
+    width: 100%;
+}
+
+.verification-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.verification-logo img {
+    width: 85px;
+    height: 85px;
+    object-fit: contain;
+}
+
+.verification-subtitle {
+    text-align: center;
+    margin: 8px 0 24px;
+    opacity: 0.75;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* CAPTCHA */
+
+.captcha {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 8px 0 18px;
+}
+
+.captcha-text {
+    flex: 1;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 15px;
+    border-radius: 10px;
+    background: #eef2ff;
+    color: #1e3a8a;
+    border: 1px dashed #6366f1;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 5px;
+    user-select: none;
+}
+
+.captcha-refresh {
+    width: 52px;
+    height: 52px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 25px;
+    background: #2563eb;
+    color: white;
+    transition: 0.2s ease;
+}
+
+.captcha-refresh:hover {
+    transform: rotate(20deg);
+}
+
+.captcha-refresh:active {
+    transform: scale(0.94);
+}
+
+/* Error */
+
+#verifyError {
+    min-height: 22px;
+    margin: 8px 0;
+    text-align: center;
+}
+
+/* Full button */
+
+.primary.full {
+    width: 100%;
+}
+
+/* =====================================================
+   FOOTER
+   ===================================================== */
+
+.site-footer {
+    width: 100%;
+    margin-top: 35px;
+    padding: 28px 16px 22px;
+    text-align: center;
+    background: #0f172a;
+    color: #e2e8f0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.footer-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.footer-logo img {
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
+}
+
+.footer-brand {
+    margin: 4px 0;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.footer-tagline {
+    margin: 3px 0 10px;
+    font-size: 14px;
+    color: #cbd5e1;
+}
+
+.footer-founder {
+    margin: 7px 0;
+    font-size: 14px;
+    color: #cbd5e1;
+}
+
+.footer-founder strong {
+    color: #60a5fa;
+}
+
+.footer-copy {
+    margin: 12px 0 0;
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+/* =====================================================
+   MOBILE
+   ===================================================== */
+
+@media (max-width: 600px) {
+
+    .verification-page {
+        padding: 20px 12px 0;
+    }
+
+    .verification-wrapper {
+        max-width: 100%;
+    }
+
+    .verification-wrapper .auth {
+        padding: 22px 18px;
+    }
+
+    .verification-logo img {
+        width: 70px;
+        height: 70px;
+    }
+
+    .verification-subtitle {
+        font-size: 13px;
+        margin-bottom: 20px;
+    }
+
+    .captcha-text {
+        min-height: 48px;
+        font-size: 19px;
+        letter-spacing: 4px;
+    }
+
+    .captcha-refresh {
+        width: 48px;
+        height: 48px;
+        font-size: 22px;
+    }
+
+    .site-footer {
+        margin-top: 25px;
+        padding: 22px 12px 18px;
+    }
+
+    .footer-logo img {
+        width: 50px;
+        height: 50px;
+    }
+
+    .footer-brand {
+        font-size: 17px;
+    }
+
+    .footer-tagline,
+    .footer-founder {
+        font-size: 13px;
+    }
+
+    .footer-copy {
+        font-size: 11px;
+    }
+}
