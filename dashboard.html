@@ -12,19 +12,22 @@
 
 <body class="page">
 
-    <!-- Header -->
+    <!-- ================= HEADER ================= -->
+
     <header>
 
-        <!-- Logo + App Name -->
         <a href="dashboard.html" class="brand">
+
             <img
                 src="engispark-logo.png"
                 alt="EngiSpark Logo"
             >
+
             <span>EngiSpark</span>
+
         </a>
 
-        <!-- Admin Button -->
+
         <button
             type="button"
             class="secondary"
@@ -36,14 +39,17 @@
     </header>
 
 
-    <!-- Main Content -->
+    <!-- ================= MAIN CONTENT ================= -->
+
     <main class="container">
 
-        <!-- Welcome -->
+        <!-- Welcome Section -->
+
         <section class="welcome-section">
 
             <h1>
-                👋 Welcome, <span id="userName">Student</span>!
+                👋 Welcome,
+                <span id="userName">Student</span>!
             </h1>
 
             <p class="muted">
@@ -53,7 +59,8 @@
         </section>
 
 
-        <!-- Welcome Popup -->
+        <!-- ================= WELCOME POPUP ================= -->
+
         <div
             id="welcomePopup"
             class="notice"
@@ -74,10 +81,10 @@
         </div>
 
 
-        <!-- Quiz Section -->
+        <!-- ================= START QUIZ ================= -->
+
         <section class="card quiz-section">
 
-            <!-- Start Quiz Tab -->
             <button
                 type="button"
                 class="quiztab"
@@ -87,7 +94,8 @@
             </button>
 
 
-            <!-- Quiz Configuration -->
+            <!-- QUIZ SETTINGS -->
+
             <div
                 id="quizConfig"
                 class="quiz-config"
@@ -95,46 +103,92 @@
 
                 <div class="grid">
 
-                    <!-- Year -->
+
+                    <!-- ================= YEAR ================= -->
+
                     <div>
+
                         <label for="yearSelect">
                             Year
                         </label>
 
                         <select id="yearSelect">
+
                             <option value="1st Year">
                                 1st Year
                             </option>
+
                         </select>
+
                     </div>
 
 
-                    <!-- Department -->
+                    <!-- ================= DEPARTMENT ================= -->
+
                     <div>
+
                         <label for="departmentSelect">
                             Department
                         </label>
 
                         <select id="departmentSelect">
-                            <!-- Departments will be loaded by JavaScript -->
+
+                            <option value="CSE">
+                                CSE
+                            </option>
+
+                            <option value="EEE">
+                                EEE
+                            </option>
+
+                            <option value="Civil">
+                                Civil
+                            </option>
+
+                            <option value="Mechanical">
+                                Mechanical
+                            </option>
+
                         </select>
+
                     </div>
 
 
-                    <!-- Subject -->
+                    <!-- ================= SUBJECT ================= -->
+
                     <div>
+
                         <label for="subjectSelect">
                             Subject
                         </label>
 
                         <select id="subjectSelect">
-                            <!-- Subjects will be loaded by JavaScript -->
+
+                            <option value="Mathematics">
+                                Mathematics
+                            </option>
+
+                            <option value="Physics">
+                                Physics
+                            </option>
+
+                            <option value="Chemistry">
+                                Chemistry
+                            </option>
+
+                            <option value="Basic Electrical">
+                                Basic Electrical
+                            </option>
+
                         </select>
+
                     </div>
 
 
-                    <!-- Difficulty -->
+                    <!-- ================= DIFFICULTY ================= -->
+
                     <div>
+
                         <label for="difficultySelect">
                             Difficulty
                         </label>
@@ -157,11 +211,14 @@
                             </option>
 
                         </select>
+
                     </div>
 
 
-                    <!-- Time -->
+                    <!-- ================= TIME ================= -->
+
                     <div>
+
                         <label for="timeSelect">
                             Time
                         </label>
@@ -184,12 +241,14 @@
                             </option>
 
                         </select>
+
                     </div>
 
                 </div>
 
 
-                <!-- Error Message -->
+                <!-- ERROR MESSAGE -->
+
                 <p
                     id="quizStartError"
                     class="error"
@@ -197,7 +256,8 @@
                 ></p>
 
 
-                <!-- Start Quiz Button -->
+                <!-- START QUIZ BUTTON -->
+
                 <button
                     type="button"
                     class="primary full"
@@ -213,7 +273,8 @@
     </main>
 
 
-    <!-- Footer -->
+    <!-- ================= FOOTER ================= -->
+
     <footer>
 
         <div>
@@ -226,6 +287,7 @@
         </div>
 
         <div>
+
             <a
                 href="https://founderappernam.com/"
                 target="_blank"
@@ -233,6 +295,7 @@
             >
                 founderappernam.com
             </a>
+
         </div>
 
         <div>
@@ -242,7 +305,8 @@
     </footer>
 
 
-    <!-- JavaScript -->
+    <!-- ================= JAVASCRIPT ================= -->
+
     <script src="script.js"></script>
 
 </body>
