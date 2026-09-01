@@ -1,45 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>EngiSpark</title>
-
+    <title>EngiSpark — Ignite Your Engineering Mind</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="engispark-logo.png">
 </head>
-
-<body class="page splash">
-
-    <!-- Main Splash Content -->
-    <main class="splash-content">
-
-        <!-- EngiSpark Logo -->
-        <img
-            src="engispark-logo.png"
-            alt="EngiSpark Logo"
-            class="logo big"
-        >
-
-        <!-- Tagline -->
-        <p class="tagline">
-            Ignite Your Engineering Mind
-        </p>
-
-        <!-- Continue Button -->
-        <button
-            class="primary continue-btn"
-            onclick="location.href='verification.html'"
-        >
-            Continue
-        </button>
-
-    </main>
-
-    <!-- Footer -->
-    <footer>
-        Made by Ayush Chatterjee
-    </footer>
-
+<body>
+    <div class="splash-container">
+        <div class="splash-content">
+            <div class="splash-logo">
+                <img src="engispark-logo.png" alt="EngiSpark Logo" class="splash-logo-img">
+                <h1 class="splash-app-name">EngiSpark</h1>
+                <p class="splash-tagline">Ignite Your Engineering Mind</p>
+            </div>
+            <button class="btn-primary splash-btn" onclick="goToVerification()">
+                Continue →
+            </button>
+        </div>
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="engispark-logo.png" alt="EngiSpark Logo" class="footer-logo-img">
+                    <span class="footer-app-name">EngiSpark</span>
+                </div>
+                <p class="footer-tagline">Ignite Your Engineering Mind</p>
+                <p class="footer-founder">
+                    Founder: <a href="https://engispark.com" target="_blank">EngiSpark.com</a>
+                </p>
+                <p class="footer-copyright">© 2026 EngiSpark. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
