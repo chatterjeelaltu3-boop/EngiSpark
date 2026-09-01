@@ -12,7 +12,6 @@
 
 <body class="page center">
 
-    <!-- Verification Card -->
     <main class="card auth">
 
         <!-- Logo -->
@@ -22,17 +21,17 @@
             class="logo"
         >
 
-        <!-- Page Title -->
+        <!-- Title -->
         <h1>🔐 Verification</h1>
 
         <!-- Full Name -->
-        <label for="fullName">
+        <label for="userName">
             Your Full Name
         </label>
 
         <input
             type="text"
-            id="fullName"
+            id="userName"
             placeholder="Enter your full name"
             autocomplete="name"
         >
@@ -40,7 +39,7 @@
         <!-- CAPTCHA -->
         <div class="captcha">
 
-            <b id="captchaText">
+            <b id="captchaCode">
                 Loading...
             </b>
 
@@ -64,16 +63,17 @@
             id="captchaInput"
             placeholder="Type the CAPTCHA"
             autocomplete="off"
+            spellcheck="false"
         >
 
-        <!-- Error Message -->
+        <!-- Error -->
         <p
-            id="verifyError"
+            id="verificationError"
             class="error"
             role="alert"
         ></p>
 
-        <!-- Verify Button -->
+        <!-- Verify -->
         <button
             type="button"
             class="primary full"
@@ -84,7 +84,7 @@
 
     </main>
 
-    <!-- JavaScript -->
+    <!-- Main JavaScript -->
     <script src="script.js"></script>
 
 </body>
