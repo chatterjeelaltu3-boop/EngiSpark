@@ -1,1 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Quiz - EngiSpark</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="page">
+
+    <!-- ================= HEADER ================= -->
+
+    <header>
+
+        <a href="dashboard.html" class="brand">
+
+            <img
+                src="engispark-logo.png"
+                alt="EngiSpark Logo"
+            >
+
+            <span>EngiSpark</span>
+
+        </a>
+
+        <!-- Timer -->
+
+        <div class="quiz-timer">
+            ⏱️ <span id="timer">00:00</span>
+        </div>
+
+    </header>
+
+
+    <!-- ================= QUIZ CONTENT ================= -->
+
+    <main class="container">
+
+        <!-- Question Information -->
+
+        <div class="row">
+
+            <b id="questionNumber">
+                Question 1/10
+            </b>
+
+            <b id="quizSubject">
+                Mathematics
+            </b>
+
+        </div>
+
+
+        <!-- Progress Bar -->
+
+        <div class="progress">
+
+            <i id="progressBar"></i>
+
+        </div>
+
+
+        <!-- Question Card -->
+
+        <section class="card quiz-card">
+
+            <h1 id="questionText">
+                Loading question...
+            </h1>
+
+
+            <!-- Options -->
+
+            <div id="options">
+
+                <!-- Options will be created by JavaScript -->
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= NAVIGATION ================= -->
+
+        <div class="row nav">
+
+            <button
+                type="button"
+                id="prevBtn"
+                class="secondary"
+                onclick="previousQuestion()"
+            >
+                ◄ Previous
+            </button>
+
+
+            <button
+                type="button"
+                id="nextBtn"
+                class="secondary"
+                onclick="nextQuestion()"
+            >
+                Next ►
+            </button>
+
+        </div>
+
+
+        <!-- ================= SUBMIT ================= -->
+
+        <button
+            type="button"
+            class="submit"
+            onclick="submitQuiz(false)"
+        >
+            ✔ Submit Quiz
+        </button>
+
+    </main>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer>
+
+        <div>
+            <strong>EngiSpark</strong>
+            — Ignite Your Engineering Mind
+        </div>
+
+        <div>
+            Made by Ayush Chatterjee
+        </div>
+
+        <div>
+            © 2026 EngiSpark. All rights reserved.
+        </div>
+
+    </footer>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
