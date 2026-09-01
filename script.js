@@ -34,6 +34,32 @@ const DEFAULT_TIMER = 15;
 
 
 /* =========================================================
+   GLOBAL QUIZ VARIABLES
+   ========================================================= */
+
+let allQuestions = [];
+
+let quizQuestions = [];
+
+let currentQuestionIndex = 0;
+
+let userAnswers = {};
+
+let quizStartTime = null;
+
+let quizEndTime = null;
+
+let quizTimerInterval = null;
+
+
+/* =========================================================
+   CAPTCHA
+   ========================================================= */
+
+let captchaCode = "";
+
+
+/* =========================================================
    LOCAL STORAGE HELPERS
    ========================================================= */
 
@@ -54,16 +80,22 @@ function getDepartments() {
 
     try {
 
-        const parsed = JSON.parse(data);
+        const parsed =
+            JSON.parse(data);
 
-        return Array.isArray(parsed)
-            ? parsed
-            : [...DEFAULT_DEPARTMENTS];
+        if (Array.isArray(parsed)) {
+            return parsed;
+        }
 
-    } catch {
+    } catch (error) {
 
-        return [...DEFAULT_DEPARTMENTS];
+        console.warn(
+            "Department storage error:",
+            error
+        );
     }
+
+    return [...DEFAULT_DEPARTMENTS];
 }
 
 
@@ -93,16 +125,22 @@ function getSubjects() {
 
     try {
 
-        const parsed = JSON.parse(data);
+        const parsed =
+            JSON.parse(data);
 
-        return Array.isArray(parsed)
-            ? parsed
-            : [...DEFAULT_SUBJECTS];
+        if (Array.isArray(parsed)) {
+            return parsed;
+        }
 
-    } catch {
+    } catch (error) {
 
-        return [...DEFAULT_SUBJECTS];
+        console.warn(
+            "Subject storage error:",
+            error
+        );
     }
+
+    return [...DEFAULT_SUBJECTS];
 }
 
 
@@ -130,7 +168,16 @@ function getTimerSetting() {
         return DEFAULT_TIMER;
     }
 
-    return Number(data) || DEFAULT_TIMER;
+    const timer =
+        Number(data);
+
+    return (
+        timer === 10 ||
+        timer === 15 ||
+        timer === 20
+    )
+        ? timer
+        : DEFAULT_TIMER;
 }
 
 
@@ -138,17 +185,14 @@ function saveTimerSetting(minutes) {
 
     localStorage.setItem(
         "engiSparkTimer",
-        minutes
+        String(minutes)
     );
 }
 
 
 /* =========================================================
-   USER VERIFICATION
+   CAPTCHA GENERATOR
    ========================================================= */
-
-let captchaCode = "";
-
 
 function generateCaptcha() {
 
@@ -176,22 +220,91 @@ function generateCaptcha() {
 
         captchaElement.textContent =
             captchaCode;
+
+        captchaElement.innerText =
+            captchaCode;
+
+        captchaElement.style.display =
+            "inline-block";
+
+        captchaElement.style.visibility =
+            "visible";
+
+        captchaElement.style.opacity =
+            "1";
+    }
+
+    const input =
+        document.getElementById("captchaInput");
+
+    if (input) {
+
+        input.value = "";
+
+        input.autocomplete = "off";
+    }
+
+    console.log(
+        "EngiSpark CAPTCHA generated."
+    );
+}
+
+
+/* =========================================================
+   CAPTCHA REFRESH
+   ========================================================= */
+
+function refreshCaptcha() {
+
+    generateCaptcha();
+
+    const errorElement =
+        document.getElementById(
+            "verificationError"
+        );
+
+    if (errorElement) {
+
+        errorElement.textContent = "";
     }
 }
 
 
+/* Make functions available to HTML onclick */
+window.generateCaptcha =
+    generateCaptcha;
+
+window.refreshCaptcha =
+    refreshCaptcha;
+
+
+/* =========================================================
+   USER VERIFICATION
+   ========================================================= */
+
 function verifyUser() {
 
     const nameInput =
-        document.getElementById("userName");
+        document.getElementById(
+            "userName"
+        );
 
     const captchaInput =
-        document.getElementById("captchaInput");
+        document.getElementById(
+            "captchaInput"
+        );
 
     const errorElement =
-        document.getElementById("verificationError");
+        document.getElementById(
+            "verificationError"
+        );
 
     if (!nameInput || !captchaInput) {
+
+        console.error(
+            "Verification elements not found."
+        );
+
         return;
     }
 
@@ -201,6 +314,14 @@ function verifyUser() {
     const enteredCaptcha =
         captchaInput.value.trim();
 
+    if (errorElement) {
+
+        errorElement.textContent = "";
+    }
+
+
+    /* NAME */
+
     if (!name) {
 
         if (errorElement) {
@@ -209,8 +330,13 @@ function verifyUser() {
                 "Please enter your full name.";
         }
 
+        nameInput.focus();
+
         return;
     }
+
+
+    /* CAPTCHA EMPTY */
 
     if (!enteredCaptcha) {
 
@@ -220,8 +346,31 @@ function verifyUser() {
                 "Please enter the CAPTCHA.";
         }
 
+        captchaInput.focus();
+
         return;
     }
+
+
+    /* CAPTCHA NOT GENERATED */
+
+    if (!captchaCode) {
+
+        generateCaptcha();
+
+        if (errorElement) {
+
+            errorElement.textContent =
+                "CAPTCHA was refreshed. Please enter the new CAPTCHA.";
+        }
+
+        captchaInput.focus();
+
+        return;
+    }
+
+
+    /* CAPTCHA CHECK */
 
     if (
         enteredCaptcha.toLowerCase() !==
@@ -231,15 +380,20 @@ function verifyUser() {
         if (errorElement) {
 
             errorElement.textContent =
-                "CAPTCHA is incorrect, please try again.";
+                "CAPTCHA is incorrect. A new CAPTCHA has been generated.";
         }
 
         captchaInput.value = "";
 
         generateCaptcha();
 
+        captchaInput.focus();
+
         return;
     }
+
+
+    /* SUCCESS */
 
     localStorage.setItem(
         "engiSparkUserName",
@@ -256,6 +410,10 @@ function verifyUser() {
 }
 
 
+window.verifyUser =
+    verifyUser;
+
+
 /* =========================================================
    DASHBOARD
    ========================================================= */
@@ -263,13 +421,19 @@ function verifyUser() {
 function loadDashboard() {
 
     const nameElement =
-        document.getElementById("userNameDisplay");
+        document.getElementById(
+            "userNameDisplay"
+        );
 
     const popup =
-        document.getElementById("welcomePopup");
+        document.getElementById(
+            "welcomePopup"
+        );
 
     const name =
-        localStorage.getItem("engiSparkUserName");
+        localStorage.getItem(
+            "engiSparkUserName"
+        );
 
     if (nameElement) {
 
@@ -279,23 +443,28 @@ function loadDashboard() {
 
     if (popup) {
 
-        popup.style.display = "flex";
+        popup.style.display =
+            "flex";
 
         setTimeout(() => {
 
-            popup.style.display = "none";
+            popup.style.display =
+                "none";
 
         }, 4000);
     }
 
     populateDashboardDepartments();
+
     populateDashboardSubjects();
 
     const timer =
         getTimerSetting();
 
     const timerSelect =
-        document.getElementById("quizTime");
+        document.getElementById(
+            "quizTime"
+        );
 
     if (timerSelect) {
 
@@ -308,7 +477,9 @@ function loadDashboard() {
 function populateDashboardDepartments() {
 
     const select =
-        document.getElementById("department");
+        document.getElementById(
+            "department"
+        );
 
     if (!select) {
         return;
@@ -323,7 +494,9 @@ function populateDashboardDepartments() {
         department => {
 
             const option =
-                document.createElement("option");
+                document.createElement(
+                    "option"
+                );
 
             option.value =
                 department;
@@ -331,7 +504,9 @@ function populateDashboardDepartments() {
             option.textContent =
                 department;
 
-            select.appendChild(option);
+            select.appendChild(
+                option
+            );
         }
     );
 }
@@ -340,7 +515,9 @@ function populateDashboardDepartments() {
 function populateDashboardSubjects() {
 
     const select =
-        document.getElementById("subject");
+        document.getElementById(
+            "subject"
+        );
 
     if (!select) {
         return;
@@ -355,7 +532,9 @@ function populateDashboardSubjects() {
         subject => {
 
             const option =
-                document.createElement("option");
+                document.createElement(
+                    "option"
+                );
 
             option.value =
                 subject;
@@ -363,7 +542,9 @@ function populateDashboardSubjects() {
             option.textContent =
                 subject;
 
-            select.appendChild(option);
+            select.appendChild(
+                option
+            );
         }
     );
 }
@@ -376,16 +557,24 @@ function populateDashboardSubjects() {
 function startQuiz() {
 
     const department =
-        document.getElementById("department")?.value;
+        document.getElementById(
+            "department"
+        )?.value;
 
     const subject =
-        document.getElementById("subject")?.value;
+        document.getElementById(
+            "subject"
+        )?.value;
 
     const difficulty =
-        document.getElementById("difficulty")?.value;
+        document.getElementById(
+            "difficulty"
+        )?.value;
 
     const time =
-        document.getElementById("quizTime")?.value;
+        document.getElementById(
+            "quizTime"
+        )?.value;
 
     const quizSettings = {
 
@@ -401,12 +590,15 @@ function startQuiz() {
             difficulty || "Medium",
 
         time:
-            Number(time) || getTimerSetting()
+            Number(time) ||
+            getTimerSetting()
     };
 
     localStorage.setItem(
         "engiSparkQuizSettings",
-        JSON.stringify(quizSettings)
+        JSON.stringify(
+            quizSettings
+        )
     );
 
     window.location.href =
@@ -414,23 +606,8 @@ function startQuiz() {
 }
 
 
-/* =========================================================
-   QUESTION DATA
-   ========================================================= */
-
-let allQuestions = [];
-
-let quizQuestions = [];
-
-let currentQuestionIndex = 0;
-
-let userAnswers = {};
-
-let quizStartTime = null;
-
-let quizEndTime = null;
-
-let quizTimerInterval = null;
+window.startQuiz =
+    startQuiz;
 
 
 /* =========================================================
@@ -442,29 +619,39 @@ async function loadQuestions() {
     try {
 
         const response =
-            await fetch("questions.json");
+            await fetch(
+                "questions.json",
+                {
+                    cache: "no-store"
+                }
+            );
 
         if (!response.ok) {
 
             throw new Error(
-                "Unable to load questions.json"
+                `questions.json returned ${response.status}`
             );
         }
 
         const data =
             await response.json();
 
+        if (!Array.isArray(data)) {
+
+            throw new Error(
+                "questions.json is not an array."
+            );
+        }
+
         allQuestions =
-            Array.isArray(data)
-                ? data
-                : [];
+            data;
 
         return allQuestions;
 
     } catch (error) {
 
         console.warn(
-            "questions.json unavailable. Using saved questions.",
+            "questions.json unavailable. Checking saved questions.",
             error
         );
 
@@ -478,20 +665,28 @@ async function loadQuestions() {
             try {
 
                 const parsed =
-                    JSON.parse(savedQuestions);
+                    JSON.parse(
+                        savedQuestions
+                    );
 
-                allQuestions =
-                    Array.isArray(parsed)
-                        ? parsed
-                        : [];
+                if (Array.isArray(parsed)) {
 
-                return allQuestions;
+                    allQuestions =
+                        parsed;
 
-            } catch {
+                    return allQuestions;
+                }
 
-                allQuestions = [];
+            } catch (storageError) {
+
+                console.warn(
+                    "Saved question data invalid:",
+                    storageError
+                );
             }
         }
+
+        allQuestions = [];
 
         return [];
     }
@@ -504,10 +699,26 @@ async function loadQuestions() {
 
 function saveQuestions() {
 
-    localStorage.setItem(
-        "engiSparkQuestions",
-        JSON.stringify(allQuestions)
-    );
+    try {
+
+        localStorage.setItem(
+            "engiSparkQuestions",
+            JSON.stringify(
+                allQuestions
+            )
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Unable to save questions:",
+            error
+        );
+
+        showAdminMessage(
+            "Unable to save questions in this browser."
+        );
+    }
 }
 
 
@@ -528,7 +739,8 @@ function shuffleArray(array) {
 
         const j =
             Math.floor(
-                Math.random() * (i + 1)
+                Math.random() *
+                (i + 1)
             );
 
         [
@@ -563,41 +775,29 @@ async function prepareQuiz() {
         return;
     }
 
-    const settings =
-        JSON.parse(settingsData);
+    let settings;
+
+    try {
+
+        settings =
+            JSON.parse(
+                settingsData
+            );
+
+    } catch {
+
+        window.location.href =
+            "dashboard.html";
+
+        return;
+    }
 
     const questions =
         await loadQuestions();
 
     let filteredQuestions =
-        questions.filter(question => {
-
-            const departmentMatch =
-                !question.department ||
-                question.department ===
-                settings.department;
-
-            const subjectMatch =
-                !question.subject ||
-                question.subject ===
-                settings.subject;
-
-            const difficultyMatch =
-                !question.difficulty ||
-                question.difficulty ===
-                settings.difficulty;
-
-            return (
-                departmentMatch &&
-                subjectMatch &&
-                difficultyMatch
-            );
-        });
-
-    if (filteredQuestions.length < 10) {
-
-        filteredQuestions =
-            questions.filter(question => {
+        questions.filter(
+            question => {
 
                 const departmentMatch =
                     !question.department ||
@@ -609,61 +809,131 @@ async function prepareQuiz() {
                     question.subject ===
                     settings.subject;
 
+                const difficultyMatch =
+                    !question.difficulty ||
+                    question.difficulty ===
+                    settings.difficulty;
+
                 return (
                     departmentMatch &&
-                    subjectMatch
+                    subjectMatch &&
+                    difficultyMatch
                 );
-            });
+            }
+        );
+
+
+    /* SECOND FALLBACK */
+
+    if (
+        filteredQuestions.length < 10
+    ) {
+
+        filteredQuestions =
+            questions.filter(
+                question => {
+
+                    const departmentMatch =
+                        !question.department ||
+                        question.department ===
+                        settings.department;
+
+                    const subjectMatch =
+                        !question.subject ||
+                        question.subject ===
+                        settings.subject;
+
+                    return (
+                        departmentMatch &&
+                        subjectMatch
+                    );
+                }
+            );
     }
 
-    if (filteredQuestions.length < 10) {
+
+    /* FINAL FALLBACK */
+
+    if (
+        filteredQuestions.length < 10
+    ) {
 
         filteredQuestions =
             questions;
     }
 
+
+    if (
+        filteredQuestions.length === 0
+    ) {
+
+        const questionText =
+            document.getElementById(
+                "questionText"
+            );
+
+        if (questionText) {
+
+            questionText.textContent =
+                "No questions are available.";
+        }
+
+        return;
+    }
+
+
     quizQuestions =
         shuffleArray(
             filteredQuestions
-        ).slice(0, 10);
+        ).slice(
+            0,
+            Math.min(
+                10,
+                filteredQuestions.length
+            )
+        );
+
 
     quizQuestions =
-        quizQuestions.map(question => {
+        quizQuestions.map(
+            question => {
 
-            const optionObjects = [
+                const optionObjects = [
 
-                {
-                    key: "A",
-                    text: question.optionA
-                },
+                    {
+                        key: "A",
+                        text: question.optionA
+                    },
 
-                {
-                    key: "B",
-                    text: question.optionB
-                },
+                    {
+                        key: "B",
+                        text: question.optionB
+                    },
 
-                {
-                    key: "C",
-                    text: question.optionC
-                },
+                    {
+                        key: "C",
+                        text: question.optionC
+                    },
 
-                {
-                    key: "D",
-                    text: question.optionD
-                }
+                    {
+                        key: "D",
+                        text: question.optionD
+                    }
 
-            ];
+                ];
 
-            const shuffledOptions =
-                shuffleArray(
-                    optionObjects
-                );
+                return {
 
-            return {
-                ...question,
-                shuffledOptions
-            };
-        });
+                    ...question,
+
+                    shuffledOptions:
+                        shuffleArray(
+                            optionObjects
+                        )
+                };
+            }
+        );
+
 
     currentQuestionIndex = 0;
 
@@ -674,15 +944,25 @@ async function prepareQuiz() {
 
     quizEndTime = null;
 
+
     localStorage.setItem(
         "engiSparkQuizQuestions",
-        JSON.stringify(quizQuestions)
+        JSON.stringify(
+            quizQuestions
+        )
     );
 
     localStorage.setItem(
         "engiSparkUserAnswers",
-        JSON.stringify(userAnswers)
+        JSON.stringify(
+            userAnswers
+        )
     );
+
+    localStorage.removeItem(
+        "engiSparkQuizSubmitted"
+    );
+
 
     displayQuizSettings();
 
@@ -709,8 +989,19 @@ function displayQuizSettings() {
         return;
     }
 
-    const settings =
-        JSON.parse(settingsData);
+    let settings;
+
+    try {
+
+        settings =
+            JSON.parse(
+                settingsData
+            );
+
+    } catch {
+
+        return;
+    }
 
     const subjectElement =
         document.getElementById(
@@ -740,6 +1031,7 @@ function displayQuestion() {
         return;
     }
 
+
     const numberElement =
         document.getElementById(
             "questionNumber"
@@ -753,6 +1045,7 @@ function displayQuestion() {
             }/${quizQuestions.length}`;
     }
 
+
     const questionText =
         document.getElementById(
             "questionText"
@@ -761,8 +1054,9 @@ function displayQuestion() {
     if (questionText) {
 
         questionText.textContent =
-            question.question;
+            question.question || "";
     }
+
 
     const optionsContainer =
         document.getElementById(
@@ -775,6 +1069,7 @@ function displayQuestion() {
 
     optionsContainer.innerHTML = "";
 
+
     question.shuffledOptions.forEach(
         option => {
 
@@ -785,6 +1080,7 @@ function displayQuestion() {
 
             label.className =
                 "option";
+
 
             const radio =
                 document.createElement(
@@ -800,18 +1096,21 @@ function displayQuestion() {
             radio.value =
                 option.key;
 
+
             if (
                 userAnswers[
                     currentQuestionIndex
                 ] === option.key
             ) {
 
-                radio.checked = true;
+                radio.checked =
+                    true;
 
                 label.classList.add(
                     "selected"
                 );
             }
+
 
             radio.addEventListener(
                 "change",
@@ -825,6 +1124,7 @@ function displayQuestion() {
                 }
             );
 
+
             const text =
                 document.createElement(
                     "span"
@@ -836,15 +1136,21 @@ function displayQuestion() {
             text.textContent =
                 `${option.key}. ${option.text}`;
 
-            label.appendChild(radio);
 
-            label.appendChild(text);
+            label.appendChild(
+                radio
+            );
+
+            label.appendChild(
+                text
+            );
 
             optionsContainer.appendChild(
                 label
             );
         }
     );
+
 
     updateNavigationButtons();
 
@@ -864,9 +1170,15 @@ function selectAnswer(answer) {
 
     localStorage.setItem(
         "engiSparkUserAnswers",
-        JSON.stringify(userAnswers)
+        JSON.stringify(
+            userAnswers
+        )
     );
 }
+
+
+window.selectAnswer =
+    selectAnswer;
 
 
 function updateOptionStyles() {
@@ -876,29 +1188,31 @@ function updateOptionStyles() {
             ".option"
         );
 
-    options.forEach(option => {
+    options.forEach(
+        option => {
 
-        const radio =
-            option.querySelector(
-                "input"
-            );
+            const radio =
+                option.querySelector(
+                    "input"
+                );
 
-        if (
-            radio &&
-            radio.checked
-        ) {
+            if (
+                radio &&
+                radio.checked
+            ) {
 
-            option.classList.add(
-                "selected"
-            );
+                option.classList.add(
+                    "selected"
+                );
 
-        } else {
+            } else {
 
-            option.classList.remove(
-                "selected"
-            );
+                option.classList.remove(
+                    "selected"
+                );
+            }
         }
-    });
+    );
 }
 
 
@@ -936,6 +1250,13 @@ function nextQuestion() {
 
     submitQuiz(false);
 }
+
+
+window.previousQuestion =
+    previousQuestion;
+
+window.nextQuestion =
+    nextQuestion;
 
 
 function updateNavigationButtons() {
@@ -986,7 +1307,10 @@ function updateProgress() {
             "progressBar"
         );
 
-    if (!progress) {
+    if (
+        !progress ||
+        quizQuestions.length === 0
+    ) {
         return;
     }
 
@@ -1015,7 +1339,11 @@ function startQuizTimer(minutes) {
     );
 
     let remainingSeconds =
-        Number(minutes) * 60;
+        Math.max(
+            1,
+            Number(minutes) * 60
+        );
+
 
     const timerElement =
         document.getElementById(
@@ -1027,6 +1355,7 @@ function startQuizTimer(minutes) {
             ".quiz-timer"
         );
 
+
     function updateTimer() {
 
         const mins =
@@ -1037,11 +1366,13 @@ function startQuizTimer(minutes) {
         const secs =
             remainingSeconds % 60;
 
+
         if (timerElement) {
 
             timerElement.textContent =
                 `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
         }
+
 
         if (
             remainingSeconds <= 60 &&
@@ -1052,6 +1383,7 @@ function startQuizTimer(minutes) {
                 "warning"
             );
         }
+
 
         if (
             remainingSeconds <= 0
@@ -1069,6 +1401,7 @@ function startQuizTimer(minutes) {
         remainingSeconds--;
     }
 
+
     updateTimer();
 
     quizTimerInterval =
@@ -1083,13 +1416,16 @@ function startQuizTimer(minutes) {
    SUBMIT QUIZ
    ========================================================= */
 
-function submitQuiz(autoSubmit = false) {
+function submitQuiz(
+    autoSubmit = false
+) {
 
     if (
         !quizQuestions.length
     ) {
         return;
     }
+
 
     if (
         localStorage.getItem(
@@ -1099,9 +1435,13 @@ function submitQuiz(autoSubmit = false) {
         return;
     }
 
+
     const unanswered =
         quizQuestions.length -
-        Object.keys(userAnswers).length;
+        Object.keys(
+            userAnswers
+        ).length;
+
 
     if (
         !autoSubmit &&
@@ -1118,16 +1458,20 @@ function submitQuiz(autoSubmit = false) {
         }
     }
 
+
     clearInterval(
         quizTimerInterval
     );
 
+
     quizEndTime =
         Date.now();
+
 
     let correct = 0;
 
     const wrongAnswers = [];
+
 
     quizQuestions.forEach(
         (question, index) => {
@@ -1137,6 +1481,7 @@ function submitQuiz(autoSubmit = false) {
 
             const correctAnswer =
                 question.correctAnswer;
+
 
             if (
                 userAnswer ===
@@ -1161,6 +1506,7 @@ function submitQuiz(autoSubmit = false) {
                             userAnswer
                     );
 
+
                 wrongAnswers.push({
 
                     question:
@@ -1183,27 +1529,39 @@ function submitQuiz(autoSubmit = false) {
         }
     );
 
+
     const total =
         quizQuestions.length;
 
+
     const percentage =
-        Math.round(
-            (correct / total) * 100
-        );
+        total > 0
+            ? Math.round(
+                (correct / total) * 100
+            )
+            : 0;
+
 
     const timeTaken =
-        quizEndTime -
-        quizStartTime;
+        quizStartTime
+            ? quizEndTime -
+              quizStartTime
+            : 0;
+
 
     const result = {
 
-        score: correct,
+        score:
+            correct,
 
-        total: total,
+        total:
+            total,
 
-        percentage: percentage,
+        percentage:
+            percentage,
 
-        correct: correct,
+        correct:
+            correct,
 
         wrong:
             total - correct,
@@ -1215,19 +1573,28 @@ function submitQuiz(autoSubmit = false) {
             timeTaken
     };
 
+
     localStorage.setItem(
         "engiSparkQuizResult",
-        JSON.stringify(result)
+        JSON.stringify(
+            result
+        )
     );
+
 
     localStorage.setItem(
         "engiSparkQuizSubmitted",
         "true"
     );
 
+
     window.location.href =
         "result.html";
 }
+
+
+window.submitQuiz =
+    submitQuiz;
 
 
 /* =========================================================
@@ -1245,8 +1612,20 @@ function loadResult() {
         return;
     }
 
-    const result =
-        JSON.parse(resultData);
+    let result;
+
+    try {
+
+        result =
+            JSON.parse(
+                resultData
+            );
+
+    } catch {
+
+        return;
+    }
+
 
     const score =
         document.getElementById(
@@ -1259,6 +1638,7 @@ function loadResult() {
             `${result.score}/${result.total}`;
     }
 
+
     const percentage =
         document.getElementById(
             "percentage"
@@ -1269,6 +1649,7 @@ function loadResult() {
         percentage.textContent =
             `${result.percentage}%`;
     }
+
 
     const correct =
         document.getElementById(
@@ -1281,6 +1662,7 @@ function loadResult() {
             result.correct;
     }
 
+
     const wrong =
         document.getElementById(
             "wrongCount"
@@ -1291,6 +1673,7 @@ function loadResult() {
         wrong.textContent =
             result.wrong;
     }
+
 
     const time =
         document.getElementById(
@@ -1305,6 +1688,7 @@ function loadResult() {
             );
     }
 
+
     displayStars(
         result.percentage
     );
@@ -1315,11 +1699,18 @@ function loadResult() {
 }
 
 
-function formatTime(milliseconds) {
+/* =========================================================
+   FORMAT TIME
+   ========================================================= */
+
+function formatTime(
+    milliseconds
+) {
 
     const totalSeconds =
         Math.floor(
-            milliseconds / 1000
+            Number(milliseconds || 0) /
+            1000
         );
 
     const minutes =
@@ -1330,6 +1721,7 @@ function formatTime(milliseconds) {
     const seconds =
         totalSeconds % 60;
 
+
     return `${minutes} minute${
         minutes !== 1 ? "s" : ""
     } ${seconds} second${
@@ -1338,7 +1730,13 @@ function formatTime(milliseconds) {
 }
 
 
-function displayStars(percentage) {
+/* =========================================================
+   STARS
+   ========================================================= */
+
+function displayStars(
+    percentage
+) {
 
     const stars =
         document.getElementById(
@@ -1349,30 +1747,45 @@ function displayStars(percentage) {
         return;
     }
 
+
     let count = 1;
 
-    if (percentage >= 90) {
+
+    if (
+        percentage >= 90
+    ) {
 
         count = 5;
 
-    } else if (percentage >= 80) {
+    } else if (
+        percentage >= 80
+    ) {
 
         count = 4;
 
-    } else if (percentage >= 60) {
+    } else if (
+        percentage >= 60
+    ) {
 
         count = 3;
 
-    } else if (percentage >= 40) {
+    } else if (
+        percentage >= 40
+    ) {
 
         count = 2;
     }
+
 
     stars.textContent =
         "⭐".repeat(count) +
         "☆".repeat(5 - count);
 }
 
+
+/* =========================================================
+   WRONG ANSWERS
+   ========================================================= */
 
 function displayWrongAnswers(
     wrongAnswers
@@ -1388,11 +1801,14 @@ function displayWrongAnswers(
             "wrongAnswersSection"
         );
 
+
     if (!container) {
         return;
     }
 
+
     container.innerHTML = "";
+
 
     if (
         !wrongAnswers ||
@@ -1412,6 +1828,7 @@ function displayWrongAnswers(
         return;
     }
 
+
     wrongAnswers.forEach(
         item => {
 
@@ -1423,22 +1840,34 @@ function displayWrongAnswers(
             div.className =
                 "wrong-answer";
 
+
             div.innerHTML = `
                 <h3>
-                    Question ${item.questionNumber}:
-                    ${escapeHTML(item.question)}
+                    Question ${escapeHTML(
+                        String(
+                            item.questionNumber
+                        )
+                    )}:
+                    ${escapeHTML(
+                        item.question
+                    )}
                 </h3>
 
                 <p class="user-answer">
                     Your answer:
-                    ${escapeHTML(item.userAnswer)}
+                    ${escapeHTML(
+                        item.userAnswer
+                    )}
                 </p>
 
                 <p class="correct-answer">
                     Correct answer:
-                    ${escapeHTML(item.correctAnswer)}
+                    ${escapeHTML(
+                        item.correctAnswer
+                    )}
                 </p>
             `;
+
 
             container.appendChild(
                 div
@@ -1471,6 +1900,10 @@ function retakeQuiz() {
 }
 
 
+window.retakeQuiz =
+    retakeQuiz;
+
+
 /* =========================================================
    ADMIN LOGIN
    ========================================================= */
@@ -1491,6 +1924,7 @@ function adminLogin() {
         document.getElementById(
             "adminLoginError"
         );
+
 
     if (
         username === "EngiSpark" &&
@@ -1516,6 +1950,10 @@ function adminLogin() {
 }
 
 
+window.adminLogin =
+    adminLogin;
+
+
 /* =========================================================
    ADMIN ACCESS
    ========================================================= */
@@ -1527,13 +1965,19 @@ function checkAdminAccess() {
             "engiSparkAdmin"
         );
 
+
     if (
         loggedIn !== "true"
     ) {
 
         window.location.href =
             "admin-login.html";
+
+        return false;
     }
+
+
+    return true;
 }
 
 
@@ -1546,6 +1990,13 @@ function adminLogout() {
     window.location.href =
         "admin-login.html";
 }
+
+
+window.checkAdminAccess =
+    checkAdminAccess;
+
+window.adminLogout =
+    adminLogout;
 
 
 /* =========================================================
@@ -1566,22 +2017,29 @@ function showAdminMessage(
             "adminMessageText"
         );
 
+
     if (!box || !text) {
         return;
     }
 
+
     text.textContent =
         message;
+
 
     box.style.display =
         "flex";
 
-    setTimeout(() => {
 
-        box.style.display =
-            "none";
+    setTimeout(
+        () => {
 
-    }, 3500);
+            box.style.display =
+                "none";
+
+        },
+        3500
+    );
 }
 
 
@@ -1600,6 +2058,13 @@ function hideAdminMessage() {
 }
 
 
+window.showAdminMessage =
+    showAdminMessage;
+
+window.hideAdminMessage =
+    hideAdminMessage;
+
+
 /* =========================================================
    TIMER MANAGEMENT
    ========================================================= */
@@ -1615,8 +2080,12 @@ function updateTimerSetting() {
         return;
     }
 
+
     const minutes =
-        Number(select.value);
+        Number(
+            select.value
+        );
+
 
     if (
         ![10, 15, 20].includes(
@@ -1631,14 +2100,17 @@ function updateTimerSetting() {
         return;
     }
 
+
     saveTimerSetting(
         minutes
     );
+
 
     const current =
         document.getElementById(
             "currentTimer"
         );
+
 
     if (current) {
 
@@ -1646,10 +2118,15 @@ function updateTimerSetting() {
             `${minutes} Minutes`;
     }
 
+
     showAdminMessage(
         "Quiz timer updated successfully."
     );
 }
+
+
+window.updateTimerSetting =
+    updateTimerSetting;
 
 
 /* =========================================================
@@ -1667,8 +2144,10 @@ function addDepartment() {
         return;
     }
 
+
     const name =
         input.value.trim();
+
 
     if (!name) {
 
@@ -1679,8 +2158,10 @@ function addDepartment() {
         return;
     }
 
+
     const departments =
         getDepartments();
+
 
     const exists =
         departments.some(
@@ -1688,6 +2169,7 @@ function addDepartment() {
                 item.toLowerCase() ===
                 name.toLowerCase()
         );
+
 
     if (exists) {
 
@@ -1698,15 +2180,19 @@ function addDepartment() {
         return;
     }
 
+
     departments.push(
         name
     );
+
 
     saveDepartments(
         departments
     );
 
+
     input.value = "";
+
 
     renderDepartmentList();
 
@@ -1715,6 +2201,7 @@ function addDepartment() {
     populateDashboardDepartments();
 
     populateAIDepartmentSelect();
+
 
     showAdminMessage(
         "Department added successfully."
@@ -1729,6 +2216,7 @@ function deleteDepartment(
     const departments =
         getDepartments();
 
+
     if (
         index < 0 ||
         index >= departments.length
@@ -1736,26 +2224,32 @@ function deleteDepartment(
         return;
     }
 
+
     const name =
         departments[index];
+
 
     const confirmed =
         confirm(
             `Delete department "${name}"?`
         );
 
+
     if (!confirmed) {
         return;
     }
+
 
     departments.splice(
         index,
         1
     );
 
+
     saveDepartments(
         departments
     );
+
 
     renderDepartmentList();
 
@@ -1764,6 +2258,7 @@ function deleteDepartment(
     populateDashboardDepartments();
 
     populateAIDepartmentSelect();
+
 
     showAdminMessage(
         "Department deleted."
@@ -1778,14 +2273,18 @@ function renderDepartmentList() {
             "departmentList"
         );
 
+
     if (!container) {
         return;
     }
 
+
     const departments =
         getDepartments();
 
+
     container.innerHTML = "";
+
 
     if (
         departments.length === 0
@@ -1800,20 +2299,28 @@ function renderDepartmentList() {
         return;
     }
 
+
     departments.forEach(
-        (department, index) => {
+        (
+            department,
+            index
+        ) => {
 
             const div =
                 document.createElement(
                     "div"
                 );
 
+
             div.className =
                 "manage-item";
 
+
             div.innerHTML = `
                 <span>
-                    ${escapeHTML(department)}
+                    ${escapeHTML(
+                        department
+                    )}
                 </span>
 
                 <button
@@ -1824,12 +2331,23 @@ function renderDepartmentList() {
                 </button>
             `;
 
+
             container.appendChild(
                 div
             );
         }
     );
 }
+
+
+window.addDepartment =
+    addDepartment;
+
+window.deleteDepartment =
+    deleteDepartment;
+
+window.renderDepartmentList =
+    renderDepartmentList;
 
 
 /* =========================================================
@@ -1843,12 +2361,15 @@ function addSubject() {
             "newSubject"
         );
 
+
     if (!input) {
         return;
     }
 
+
     const name =
         input.value.trim();
+
 
     if (!name) {
 
@@ -1859,8 +2380,10 @@ function addSubject() {
         return;
     }
 
+
     const subjects =
         getSubjects();
+
 
     const exists =
         subjects.some(
@@ -1868,6 +2391,7 @@ function addSubject() {
                 item.toLowerCase() ===
                 name.toLowerCase()
         );
+
 
     if (exists) {
 
@@ -1878,15 +2402,19 @@ function addSubject() {
         return;
     }
 
+
     subjects.push(
         name
     );
+
 
     saveSubjects(
         subjects
     );
 
+
     input.value = "";
+
 
     renderSubjectList();
 
@@ -1895,6 +2423,7 @@ function addSubject() {
     populateDashboardSubjects();
 
     populateAISubjectSelect();
+
 
     showAdminMessage(
         "Subject added successfully."
@@ -1909,6 +2438,7 @@ function deleteSubject(
     const subjects =
         getSubjects();
 
+
     if (
         index < 0 ||
         index >= subjects.length
@@ -1916,26 +2446,32 @@ function deleteSubject(
         return;
     }
 
+
     const name =
         subjects[index];
+
 
     const confirmed =
         confirm(
             `Delete subject "${name}"?`
         );
 
+
     if (!confirmed) {
         return;
     }
+
 
     subjects.splice(
         index,
         1
     );
 
+
     saveSubjects(
         subjects
     );
+
 
     renderSubjectList();
 
@@ -1944,6 +2480,7 @@ function deleteSubject(
     populateDashboardSubjects();
 
     populateAISubjectSelect();
+
 
     showAdminMessage(
         "Subject deleted."
@@ -1958,14 +2495,18 @@ function renderSubjectList() {
             "subjectList"
         );
 
+
     if (!container) {
         return;
     }
 
+
     const subjects =
         getSubjects();
 
+
     container.innerHTML = "";
+
 
     if (
         subjects.length === 0
@@ -1980,20 +2521,28 @@ function renderSubjectList() {
         return;
     }
 
+
     subjects.forEach(
-        (subject, index) => {
+        (
+            subject,
+            index
+        ) => {
 
             const div =
                 document.createElement(
                     "div"
                 );
 
+
             div.className =
                 "manage-item";
 
+
             div.innerHTML = `
                 <span>
-                    ${escapeHTML(subject)}
+                    ${escapeHTML(
+                        subject
+                    )}
                 </span>
 
                 <button
@@ -2004,12 +2553,23 @@ function renderSubjectList() {
                 </button>
             `;
 
+
             container.appendChild(
                 div
             );
         }
     );
 }
+
+
+window.addSubject =
+    addSubject;
+
+window.deleteSubject =
+    deleteSubject;
+
+window.renderSubjectList =
+    renderSubjectList;
 
 
 /* =========================================================
@@ -2023,14 +2583,18 @@ function populateQuestionSubjectSelect() {
             "questionSubject"
         );
 
+
     if (!select) {
         return;
     }
 
+
     const subjects =
         getSubjects();
 
+
     select.innerHTML = "";
+
 
     subjects.forEach(
         subject => {
@@ -2061,14 +2625,18 @@ function populateQuestionDepartmentSelect() {
             "questionDepartment"
         );
 
+
     if (!select) {
         return;
     }
 
+
     const departments =
         getDepartments();
 
+
     select.innerHTML = "";
+
 
     departments.forEach(
         department => {
@@ -2103,14 +2671,18 @@ function populateAIDepartmentSelect() {
             "aiDepartment"
         );
 
+
     if (!select) {
         return;
     }
 
+
     const departments =
         getDepartments();
 
+
     select.innerHTML = "";
+
 
     departments.forEach(
         department => {
@@ -2141,14 +2713,18 @@ function populateAISubjectSelect() {
             "aiSubject"
         );
 
+
     if (!select) {
         return;
     }
 
+
     const subjects =
         getSubjects();
 
+
     select.innerHTML = "";
+
 
     subjects.forEach(
         subject => {
@@ -2179,27 +2755,39 @@ function populateAISubjectSelect() {
 function getNextQuestionId() {
 
     if (
+        !Array.isArray(allQuestions) ||
         allQuestions.length === 0
     ) {
+
         return 1;
     }
 
+
     const ids =
         allQuestions
-            .map(q => Number(q.id))
+            .map(
+                question =>
+                    Number(
+                        question.id
+                    )
+            )
             .filter(
-                id => !isNaN(id)
+                id =>
+                    Number.isFinite(id)
             );
+
 
     if (
         ids.length === 0
     ) {
+
         return 1;
     }
 
-    return Math.max(
-        ...ids
-    ) + 1;
+
+    return (
+        Math.max(...ids) + 1
+    );
 }
 
 
@@ -2207,61 +2795,78 @@ function getNextQuestionId() {
    ADD / EDIT QUESTION
    ========================================================= */
 
-async function saveQuestion(event) {
+async function saveQuestion(
+    event
+) {
 
-    event.preventDefault();
+    if (event) {
+
+        event.preventDefault();
+    }
+
 
     await loadQuestions();
+
 
     const question =
         document.getElementById(
             "questionText"
         )?.value.trim();
 
+
     const optionA =
         document.getElementById(
             "optionA"
         )?.value.trim();
+
 
     const optionB =
         document.getElementById(
             "optionB"
         )?.value.trim();
 
+
     const optionC =
         document.getElementById(
             "optionC"
         )?.value.trim();
+
 
     const optionD =
         document.getElementById(
             "optionD"
         )?.value.trim();
 
+
     const correctAnswer =
         document.getElementById(
             "correctAnswer"
         )?.value;
+
 
     const subject =
         document.getElementById(
             "questionSubject"
         )?.value;
 
+
     const department =
         document.getElementById(
             "questionDepartment"
         )?.value;
+
 
     const difficulty =
         document.getElementById(
             "questionDifficulty"
         )?.value;
 
+
     const editingId =
         document.getElementById(
             "editingQuestionId"
         )?.value;
+
 
     if (
         !question ||
@@ -2281,6 +2886,7 @@ async function saveQuestion(event) {
 
         return;
     }
+
 
     const questionData = {
 
@@ -2320,6 +2926,7 @@ async function saveQuestion(event) {
             correctAnswer
     };
 
+
     if (editingId) {
 
         const index =
@@ -2329,11 +2936,13 @@ async function saveQuestion(event) {
                     Number(editingId)
             );
 
+
         if (index !== -1) {
 
             allQuestions[index] =
                 questionData;
         }
+
 
         showAdminMessage(
             "Question updated successfully."
@@ -2345,10 +2954,12 @@ async function saveQuestion(event) {
             questionData
         );
 
+
         showAdminMessage(
             "Question added successfully."
         );
     }
+
 
     saveQuestions();
 
@@ -2356,6 +2967,10 @@ async function saveQuestion(event) {
 
     renderAdminQuestions();
 }
+
+
+window.saveQuestion =
+    saveQuestion;
 
 
 /* =========================================================
@@ -2369,24 +2984,30 @@ function resetQuestionForm() {
             "questionForm"
         );
 
+
     if (form) {
+
         form.reset();
     }
+
 
     const editingId =
         document.getElementById(
             "editingQuestionId"
         );
 
+
     if (editingId) {
 
         editingId.value = "";
     }
 
+
     const button =
         document.getElementById(
             "questionSubmitBtn"
         );
+
 
     if (button) {
 
@@ -2394,17 +3015,24 @@ function resetQuestionForm() {
             "➕ Add Question";
     }
 
+
     populateQuestionSubjectSelect();
 
     populateQuestionDepartmentSelect();
 }
 
 
+window.resetQuestionForm =
+    resetQuestionForm;
+
+
 /* =========================================================
    EDIT QUESTION
    ========================================================= */
 
-function editQuestion(id) {
+function editQuestion(
+    id
+) {
 
     const question =
         allQuestions.find(
@@ -2413,64 +3041,129 @@ function editQuestion(id) {
                 Number(id)
         );
 
+
     if (!question) {
         return;
     }
 
-    document.getElementById(
-        "questionText"
-    ).value =
-        question.question || "";
 
-    document.getElementById(
-        "optionA"
-    ).value =
-        question.optionA || "";
+    const questionText =
+        document.getElementById(
+            "questionText"
+        );
 
-    document.getElementById(
-        "optionB"
-    ).value =
-        question.optionB || "";
+    const optionA =
+        document.getElementById(
+            "optionA"
+        );
 
-    document.getElementById(
-        "optionC"
-    ).value =
-        question.optionC || "";
+    const optionB =
+        document.getElementById(
+            "optionB"
+        );
 
-    document.getElementById(
-        "optionD"
-    ).value =
-        question.optionD || "";
+    const optionC =
+        document.getElementById(
+            "optionC"
+        );
 
-    document.getElementById(
-        "correctAnswer"
-    ).value =
-        question.correctAnswer || "";
+    const optionD =
+        document.getElementById(
+            "optionD"
+        );
 
-    document.getElementById(
-        "questionSubject"
-    ).value =
-        question.subject || "";
+    const correctAnswer =
+        document.getElementById(
+            "correctAnswer"
+        );
 
-    document.getElementById(
-        "questionDepartment"
-    ).value =
-        question.department || "";
+    const questionSubject =
+        document.getElementById(
+            "questionSubject"
+        );
 
-    document.getElementById(
-        "questionDifficulty"
-    ).value =
-        question.difficulty || "Medium";
+    const questionDepartment =
+        document.getElementById(
+            "questionDepartment"
+        );
 
-    document.getElementById(
-        "editingQuestionId"
-    ).value =
-        question.id;
+    const questionDifficulty =
+        document.getElementById(
+            "questionDifficulty"
+        );
+
+    const editingId =
+        document.getElementById(
+            "editingQuestionId"
+        );
+
+
+    if (questionText) {
+
+        questionText.value =
+            question.question || "";
+    }
+
+    if (optionA) {
+
+        optionA.value =
+            question.optionA || "";
+    }
+
+    if (optionB) {
+
+        optionB.value =
+            question.optionB || "";
+    }
+
+    if (optionC) {
+
+        optionC.value =
+            question.optionC || "";
+    }
+
+    if (optionD) {
+
+        optionD.value =
+            question.optionD || "";
+    }
+
+    if (correctAnswer) {
+
+        correctAnswer.value =
+            question.correctAnswer || "";
+    }
+
+    if (questionSubject) {
+
+        questionSubject.value =
+            question.subject || "";
+    }
+
+    if (questionDepartment) {
+
+        questionDepartment.value =
+            question.department || "";
+    }
+
+    if (questionDifficulty) {
+
+        questionDifficulty.value =
+            question.difficulty || "Medium";
+    }
+
+    if (editingId) {
+
+        editingId.value =
+            question.id;
+    }
+
 
     const button =
         document.getElementById(
             "questionSubmitBtn"
         );
+
 
     if (button) {
 
@@ -2478,19 +3171,27 @@ function editQuestion(id) {
             "💾 Update Question";
     }
 
+
     document.getElementById(
         "questionForm"
     )?.scrollIntoView({
-        behavior: "smooth"
+        behavior: "smooth",
+        block: "start"
     });
 }
+
+
+window.editQuestion =
+    editQuestion;
 
 
 /* =========================================================
    DELETE QUESTION
    ========================================================= */
 
-function deleteQuestion(id) {
+function deleteQuestion(
+    id
+) {
 
     const question =
         allQuestions.find(
@@ -2499,18 +3200,22 @@ function deleteQuestion(id) {
                 Number(id)
         );
 
+
     if (!question) {
         return;
     }
+
 
     const confirmed =
         confirm(
             "Are you sure you want to delete this question?"
         );
 
+
     if (!confirmed) {
         return;
     }
+
 
     allQuestions =
         allQuestions.filter(
@@ -2519,14 +3224,20 @@ function deleteQuestion(id) {
                 Number(id)
         );
 
+
     saveQuestions();
 
     renderAdminQuestions();
+
 
     showAdminMessage(
         "Question deleted successfully."
     );
 }
+
+
+window.deleteQuestion =
+    deleteQuestion;
 
 
 /* =========================================================
@@ -2542,17 +3253,21 @@ function renderAdminQuestions(
             "adminQuestionList"
         );
 
+
     if (!container) {
         return;
     }
 
+
     const search =
-        searchText
+        String(searchText)
             .trim()
             .toLowerCase();
 
+
     let questions =
         allQuestions;
+
 
     if (search) {
 
@@ -2562,11 +3277,12 @@ function renderAdminQuestions(
 
                     const combined =
                         `
-                        ${question.question}
-                        ${question.subject}
-                        ${question.department}
-                        ${question.difficulty}
+                        ${question.question || ""}
+                        ${question.subject || ""}
+                        ${question.department || ""}
+                        ${question.difficulty || ""}
                         `.toLowerCase();
+
 
                     return combined.includes(
                         search
@@ -2575,18 +3291,22 @@ function renderAdminQuestions(
             );
     }
 
+
     container.innerHTML = "";
+
 
     const count =
         document.getElementById(
             "questionCount"
         );
 
+
     if (count) {
 
         count.textContent =
             questions.length;
     }
+
 
     if (
         questions.length === 0
@@ -2607,6 +3327,7 @@ function renderAdminQuestions(
         return;
     }
 
+
     questions.forEach(
         question => {
 
@@ -2615,8 +3336,10 @@ function renderAdminQuestions(
                     "article"
                 );
 
+
             article.className =
                 "admin-question";
+
 
             const difficultyClass =
                 `difficulty-${
@@ -2626,6 +3349,7 @@ function renderAdminQuestions(
                     ).toLowerCase()
                 }`;
 
+
             article.innerHTML = `
 
                 <div class="admin-question-header">
@@ -2633,11 +3357,13 @@ function renderAdminQuestions(
                     <div class="admin-question-title">
 
                         Question ${escapeHTML(
-                            String(question.id)
+                            String(
+                                question.id
+                            )
                         )}:
 
                         ${escapeHTML(
-                            question.question
+                            question.question || ""
                         )}
 
                     </div>
@@ -2755,6 +3481,7 @@ function renderAdminQuestions(
 
             `;
 
+
             container.appendChild(
                 article
             );
@@ -2774,12 +3501,17 @@ function filterAdminQuestions() {
             "questionSearch"
         );
 
+
     renderAdminQuestions(
         input
             ? input.value
             : ""
     );
 }
+
+
+window.filterAdminQuestions =
+    filterAdminQuestions;
 
 
 /* =========================================================
@@ -2793,29 +3525,51 @@ async function generateAIQuestions() {
             "aiDepartment"
         )?.value.trim();
 
+
     const subject =
         document.getElementById(
             "aiSubject"
         )?.value.trim();
 
+
     const difficulty =
         document.getElementById(
             "aiDifficulty"
-        )?.value || "Medium";
+        )?.value ||
+        "Medium";
 
-    const count =
+
+    let count =
         Number(
             document.getElementById(
                 "aiCount"
-            )?.value || 3
+            )?.value ||
+            3
         );
+
 
     const button =
         document.getElementById(
             "generateAIButton"
         );
 
-    if (!department || !subject) {
+
+    /* LIMIT */
+
+    count =
+        Math.min(
+            Math.max(
+                count,
+                1
+            ),
+            20
+        );
+
+
+    if (
+        !department ||
+        !subject
+    ) {
 
         showAIStatus(
             "Please select a department and subject.",
@@ -2825,20 +3579,28 @@ async function generateAIQuestions() {
         return;
     }
 
+
     if (button) {
 
-        button.disabled = true;
+        button.disabled =
+            true;
 
         button.textContent =
             "⏳ Generating...";
     }
+
 
     showAIStatus(
         `Generating ${count} question(s) with Cloudflare AI...`,
         "loading"
     );
 
+
     try {
+
+        /*
+         * Make the API request.
+         */
 
         const response =
             await fetch(
@@ -2847,136 +3609,292 @@ async function generateAIQuestions() {
                     method: "POST",
 
                     headers: {
+
                         "Content-Type":
+                            "application/json",
+
+                        "Accept":
                             "application/json"
                     },
 
-                    body: JSON.stringify({
+                    body:
+                        JSON.stringify({
 
-                        department:
-                            department,
+                            department:
+                                department,
 
-                        subject:
-                            subject,
+                            subject:
+                                subject,
 
-                        difficulty:
-                            difficulty,
+                            difficulty:
+                                difficulty,
 
-                        count:
-                            count
-                    })
+                            count:
+                                count
+                        })
                 }
             );
 
-        let data;
 
-        try {
+        /*
+         * Read response safely.
+         */
 
-            data =
-                await response.json();
+        const rawText =
+            await response.text();
 
-        } catch {
+
+        let data = null;
+
+
+        if (rawText) {
+
+            try {
+
+                data =
+                    JSON.parse(
+                        rawText
+                    );
+
+            } catch {
+
+                console.error(
+                    "Cloudflare returned non-JSON response:",
+                    rawText
+                );
+
+                throw new Error(
+                    `Cloudflare Worker returned an invalid response (${response.status}).`
+                );
+            }
+        }
+
+
+        /*
+         * HTTP ERROR
+         */
+
+        if (!response.ok) {
+
+            const serverMessage =
+                data?.error ||
+                data?.message ||
+                data?.detail ||
+                `Server error ${response.status}`;
 
             throw new Error(
-                "Server returned an invalid response."
+                serverMessage
             );
         }
 
+
+        /*
+         * SUCCESS FLAG
+         */
+
         if (
-            !response.ok ||
-            !data.success
+            data &&
+            data.success === false
         ) {
 
             throw new Error(
                 data.error ||
-                `AI request failed (${response.status}).`
+                data.message ||
+                "Cloudflare AI request failed."
             );
         }
 
-        const generated =
-            Array.isArray(data.questions)
-                ? data.questions
-                : [];
+
+        /*
+         * Find questions.
+         *
+         * Supports:
+         *
+         * {
+         *   questions: [...]
+         * }
+         *
+         * or
+         *
+         * {
+         *   data: {
+         *      questions: [...]
+         *   }
+         * }
+         */
+
+        let generated = [];
+
+
+        if (
+            Array.isArray(
+                data?.questions
+            )
+        ) {
+
+            generated =
+                data.questions;
+
+        } else if (
+            Array.isArray(
+                data?.data?.questions
+            )
+        ) {
+
+            generated =
+                data.data.questions;
+        }
+
+
+        /*
+         * No questions
+         */
 
         if (
             generated.length === 0
         ) {
 
             throw new Error(
-                "AI did not generate any valid questions."
+                "Cloudflare AI did not return any questions."
             );
         }
 
+
+        /*
+         * Load current questions first.
+         */
+
         await loadQuestions();
+
+
+        /*
+         * IMPORTANT:
+         * Reserve unique IDs before pushing.
+         */
+
+        let nextId =
+            getNextQuestionId();
+
 
         const convertedQuestions =
             generated
                 .map(
-                    (q, index) =>
-                        convertAIQuestion(
-                            q,
-                            department,
-                            subject,
-                            difficulty,
-                            index
-                        )
+                    q => {
+
+                        const converted =
+                            convertAIQuestion(
+                                q,
+                                department,
+                                subject,
+                                difficulty,
+                                nextId
+                            );
+
+                        if (converted) {
+
+                            nextId++;
+                        }
+
+                        return converted;
+                    }
                 )
-                .filter(Boolean);
+                .filter(
+                    Boolean
+                );
+
 
         if (
             convertedQuestions.length === 0
         ) {
 
             throw new Error(
-                "AI questions could not be converted."
+                "AI response was received, but the question format was invalid."
             );
         }
+
+
+        /*
+         * Add to question database.
+         */
 
         allQuestions.push(
             ...convertedQuestions
         );
 
+
         saveQuestions();
 
         renderAdminQuestions();
 
+
+        /*
+         * Preview
+         */
+
         displayAIGeneratedQuestions(
             generated
         );
+
 
         showAIStatus(
             `${convertedQuestions.length} question(s) generated successfully and added to the question list.`,
             "success"
         );
 
+
         showAdminMessage(
             `${convertedQuestions.length} AI question(s) added successfully.`
         );
 
+
     } catch (error) {
 
         console.error(
-            "AI generation error:",
+            "Cloudflare AI generation error:",
             error
         );
 
+
+        let message =
+            error?.message ||
+            "Unable to generate questions.";
+
+
+        /*
+         * Network / CORS
+         */
+
+        if (
+            error instanceof TypeError
+        ) {
+
+            message =
+                "Network or CORS error. Please check that your Cloudflare Worker is running and allows requests from this website.";
+        }
+
+
         showAIStatus(
-            error.message ||
-            "Unable to generate questions.",
+            message,
             "error"
         );
+
 
     } finally {
 
         if (button) {
 
-            button.disabled = false;
+            button.disabled =
+                false;
 
             button.textContent =
                 "✨ Generate Questions";
         }
     }
 }
+
+
+window.generateAIQuestions =
+    generateAIQuestions;
 
 
 /* =========================================================
@@ -2988,33 +3906,127 @@ function convertAIQuestion(
     department,
     subject,
     difficulty,
-    index
+    id
 ) {
 
     if (!aiQuestion) {
         return null;
     }
 
+
+    const questionText =
+        typeof aiQuestion.question ===
+        "string"
+            ? aiQuestion.question.trim()
+            : "";
+
+
     const options =
-        Array.isArray(aiQuestion.options)
+        Array.isArray(
+            aiQuestion.options
+        )
             ? aiQuestion.options
             : [];
 
+
+    const answer =
+        typeof aiQuestion.answer ===
+        "string"
+            ? aiQuestion.answer.trim()
+            : "";
+
+
     if (
-        typeof aiQuestion.question !== "string" ||
+        !questionText ||
         options.length !== 4 ||
-        typeof aiQuestion.answer !== "string"
+        !answer
     ) {
 
         return null;
     }
 
-    const correctIndex =
-        options.findIndex(
+
+    const cleanedOptions =
+        options.map(
             option =>
-                String(option).trim() ===
-                String(aiQuestion.answer).trim()
+                String(
+                    option
+                ).trim()
         );
+
+
+    if (
+        cleanedOptions.some(
+            option =>
+                !option
+        )
+    ) {
+
+        return null;
+    }
+
+
+    /*
+     * Find answer by exact text.
+     */
+
+    let correctIndex =
+        cleanedOptions.findIndex(
+            option =>
+                option.toLowerCase() ===
+                answer.toLowerCase()
+        );
+
+
+    /*
+     * Also support A/B/C/D answer.
+     */
+
+    if (
+        correctIndex === -1
+    ) {
+
+        const answerKey =
+            answer
+                .toUpperCase()
+                .replace(
+                    /[^ABCD]/g,
+                    ""
+                )
+                .charAt(0);
+
+
+        if (answerKey) {
+
+            correctIndex =
+                ["A", "B", "C", "D"]
+                    .indexOf(
+                        answerKey
+                    );
+        }
+    }
+
+
+    /*
+     * If answer is like:
+     * "A. option text"
+     */
+
+    if (
+        correctIndex === -1
+    ) {
+
+        correctIndex =
+            cleanedOptions.findIndex(
+                option =>
+                    answer
+                        .toLowerCase()
+                        .includes(
+                            option.toLowerCase()
+                        )
+            );
+    }
+
 
     if (
         correctIndex < 0 ||
@@ -3024,13 +4036,19 @@ function convertAIQuestion(
         return null;
     }
 
-    const correctKeys =
-        ["A", "B", "C", "D"];
+
+    const correctKeys = [
+        "A",
+        "B",
+        "C",
+        "D"
+    ];
+
 
     return {
 
         id:
-            getNextQuestionId() + index,
+            Number(id),
 
         year:
             "1st Year",
@@ -3045,25 +4063,28 @@ function convertAIQuestion(
             difficulty,
 
         question:
-            aiQuestion.question.trim(),
+            questionText,
 
         optionA:
-            String(options[0]).trim(),
+            cleanedOptions[0],
 
         optionB:
-            String(options[1]).trim(),
+            cleanedOptions[1],
 
         optionC:
-            String(options[2]).trim(),
+            cleanedOptions[2],
 
         optionD:
-            String(options[3]).trim(),
+            cleanedOptions[3],
 
         correctAnswer:
-            correctKeys[correctIndex],
+            correctKeys[
+                correctIndex
+            ],
 
         explanation:
-            typeof aiQuestion.explanation === "string"
+            typeof aiQuestion.explanation ===
+            "string"
                 ? aiQuestion.explanation.trim()
                 : "",
 
@@ -3087,32 +4108,57 @@ function showAIStatus(
             "aiStatus"
         );
 
+
     if (!status) {
+
+        console.warn(
+            "aiStatus element not found:",
+            message
+        );
+
         return;
     }
+
 
     status.textContent =
         message;
 
+
     status.className =
         "ai-status";
 
-    if (type === "error") {
+
+    if (
+        type === "error"
+    ) {
 
         status.classList.add(
             "error"
         );
 
-    } else if (type === "success") {
+    } else if (
+        type === "success"
+    ) {
 
         status.classList.add(
             "success"
         );
+
+    } else {
+
+        status.classList.add(
+            "loading"
+        );
     }
+
 
     status.style.display =
         "block";
 }
+
+
+window.showAIStatus =
+    showAIStatus;
 
 
 /* =========================================================
@@ -3128,9 +4174,11 @@ function displayAIGeneratedQuestions(
             "aiGeneratedList"
         );
 
+
     if (!container) {
         return;
     }
+
 
     container.innerHTML = `
         <h3>
@@ -3138,21 +4186,30 @@ function displayAIGeneratedQuestions(
         </h3>
     `;
 
+
     questions.forEach(
-        (question, index) => {
+        (
+            question,
+            index
+        ) => {
 
             const item =
                 document.createElement(
                     "div"
                 );
 
+
             item.className =
                 "ai-generated-item";
 
+
             const options =
-                Array.isArray(question.options)
+                Array.isArray(
+                    question.options
+                )
                     ? question.options
                     : [];
+
 
             item.innerHTML = `
 
@@ -3162,6 +4219,7 @@ function displayAIGeneratedQuestions(
                         question.question || ""
                     )}
                 </h4>
+
 
                 <div class="ai-generated-options">
 
@@ -3191,19 +4249,31 @@ function displayAIGeneratedQuestions(
 
                 </div>
 
+
                 <div class="ai-generated-answer">
+
                     Correct Answer:
                     ${escapeHTML(
                         question.answer || ""
                     )}
+
                 </div>
 
-                <p class="muted">
-                    ${escapeHTML(
-                        question.explanation || ""
-                    )}
-                </p>
+
+                ${
+                    question.explanation
+                        ? `
+                            <p class="muted">
+                                ${escapeHTML(
+                                    question.explanation
+                                )}
+                            </p>
+                        `
+                        : ""
+                }
+
             `;
+
 
             container.appendChild(
                 item
@@ -3220,15 +4290,18 @@ function clearAIGeneratedQuestions() {
             "aiGeneratedList"
         );
 
+
     const status =
         document.getElementById(
             "aiStatus"
         );
 
+
     if (container) {
 
         container.innerHTML = "";
     }
+
 
     if (status) {
 
@@ -3238,19 +4311,30 @@ function clearAIGeneratedQuestions() {
 }
 
 
+window.displayAIGeneratedQuestions =
+    displayAIGeneratedQuestions;
+
+window.clearAIGeneratedQuestions =
+    clearAIGeneratedQuestions;
+
+
 /* =========================================================
    HTML ESCAPE
    ========================================================= */
 
-function escapeHTML(value) {
+function escapeHTML(
+    value
+) {
 
     const div =
         document.createElement(
             "div"
         );
 
+
     div.textContent =
         value ?? "";
+
 
     return div.innerHTML;
 }
@@ -3267,25 +4351,71 @@ document.addEventListener(
         const page =
             location.pathname
                 .split("/")
-                .pop();
+                .pop()
+                .toLowerCase();
 
 
-        /* -------------------------
-           Verification
-           ------------------------- */
+        console.log(
+            "EngiSpark script loaded:",
+            page
+        );
+
+
+        /* =====================================================
+           VERIFICATION PAGE
+           ===================================================== */
 
         if (
             page ===
             "verification.html"
         ) {
 
-            generateCaptcha();
+            /*
+             * Small delay ensures that the HTML
+             * has fully rendered before CAPTCHA
+             * is inserted.
+             */
+
+            setTimeout(
+                () => {
+
+                    generateCaptcha();
+
+                },
+                50
+            );
+
+
+            const captchaInput =
+                document.getElementById(
+                    "captchaInput"
+                );
+
+
+            if (captchaInput) {
+
+                captchaInput.addEventListener(
+                    "keydown",
+                    event => {
+
+                        if (
+                            event.key ===
+                            "Enter"
+                        ) {
+
+                            event.preventDefault();
+
+                            verifyUser();
+                        }
+                    }
+                );
+            }
         }
 
 
-        /* -------------------------
-           Dashboard
-           ------------------------- */
+        /* =====================================================
+           DASHBOARD
+           ===================================================== */
 
         if (
             page ===
@@ -3296,9 +4426,9 @@ document.addEventListener(
         }
 
 
-        /* -------------------------
-           Quiz
-           ------------------------- */
+        /* =====================================================
+           QUIZ
+           ===================================================== */
 
         if (
             page ===
@@ -3313,9 +4443,9 @@ document.addEventListener(
         }
 
 
-        /* -------------------------
-           Result
-           ------------------------- */
+        /* =====================================================
+           RESULT
+           ===================================================== */
 
         if (
             page ===
@@ -3326,16 +4456,73 @@ document.addEventListener(
         }
 
 
-        /* -------------------------
-           Admin Panel
-           ------------------------- */
+        /* =====================================================
+           ADMIN LOGIN
+           ===================================================== */
+
+        if (
+            page ===
+            "admin-login.html"
+        ) {
+
+            const username =
+                document.getElementById(
+                    "adminUsername"
+                );
+
+            const password =
+                document.getElementById(
+                    "adminPassword"
+                );
+
+
+            [
+                username,
+                password
+            ].forEach(
+                input => {
+
+                    if (!input) {
+                        return;
+                    }
+
+
+                    input.addEventListener(
+                        "keydown",
+                        event => {
+
+                            if (
+                                event.key ===
+                                "Enter"
+                            ) {
+
+                                event.preventDefault();
+
+                                adminLogin();
+                            }
+                        }
+                    );
+                }
+            );
+        }
+
+
+        /* =====================================================
+           ADMIN PANEL
+           ===================================================== */
 
         if (
             page ===
             "admin-panel.html"
         ) {
 
-            checkAdminAccess();
+            if (
+                !checkAdminAccess()
+            ) {
+
+                return;
+            }
+
 
             await loadQuestions();
 
@@ -3347,19 +4534,23 @@ document.addEventListener(
                     "adminTimer"
                 );
 
+
             const currentTimer =
                 document.getElementById(
                     "currentTimer"
                 );
 
+
             const timer =
                 getTimerSetting();
+
 
             if (timerSelect) {
 
                 timerSelect.value =
                     String(timer);
             }
+
 
             if (currentTimer) {
 
