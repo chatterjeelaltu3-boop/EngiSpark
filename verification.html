@@ -2,7 +2,9 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
@@ -10,145 +12,167 @@
 
     <title>Verification - EngiSpark</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
 
-<body class="page center">
+<body class="page verification-page">
 
-    <!-- =========================
-         VERIFICATION CARD
-         ========================= -->
+    <!-- =================================================
+         VERIFICATION SECTION
+         ================================================= -->
 
-    <main class="card auth">
+    <main class="verification-wrapper">
 
-        <!-- Logo -->
-        <img
-            src="engispark-logo.png"
-            alt="EngiSpark Logo"
-            class="logo"
-        >
+        <section class="card auth">
 
-        <h1>🔐 Verification</h1>
+            <!-- Logo -->
+            <div class="verification-logo">
 
-        <p class="muted">
-            Verify yourself to continue to EngiSpark.
-        </p>
+                <img
+                    src="engispark-logo.png"
+                    alt="EngiSpark Logo"
+                >
 
-
-        <!-- Full Name -->
-
-        <label for="userName">
-            Your Full Name
-        </label>
-
-        <input
-            type="text"
-            id="userName"
-            placeholder="Enter your full name"
-            autocomplete="name"
-        >
+            </div>
 
 
-        <!-- CAPTCHA -->
+            <!-- Title -->
 
-        <label>
-            CAPTCHA
-        </label>
+            <h1>
+                🔐 Verification
+            </h1>
 
-        <div class="captcha">
+            <p class="verification-subtitle">
+                Verify yourself to continue to EngiSpark.
+            </p>
 
-            <b id="captchaCode">
-                Loading...
-            </b>
+
+            <!-- Full Name -->
+
+            <label for="fullName">
+                Your Full Name
+            </label>
+
+            <input
+                type="text"
+                id="fullName"
+                placeholder="Enter your full name"
+                autocomplete="name"
+            >
+
+
+            <!-- CAPTCHA -->
+
+            <label>
+                CAPTCHA
+            </label>
+
+            <div class="captcha">
+
+                <span
+                    id="captchaText"
+                    class="captcha-text"
+                >
+                    Loading...
+                </span>
+
+                <button
+                    type="button"
+                    onclick="generateCaptcha()"
+                    class="captcha-refresh"
+                    aria-label="Generate new CAPTCHA"
+                >
+                    ↻
+                </button>
+
+            </div>
+
+
+            <!-- CAPTCHA Input -->
+
+            <label for="captchaInput">
+                Enter CAPTCHA
+            </label>
+
+            <input
+                type="text"
+                id="captchaInput"
+                placeholder="Type the CAPTCHA"
+                autocomplete="off"
+                maxlength="5"
+            >
+
+
+            <!-- Error -->
+
+            <p
+                id="verifyError"
+                class="error"
+                role="alert"
+            ></p>
+
+
+            <!-- Verify -->
 
             <button
                 type="button"
-                onclick="generateCaptcha()"
-                aria-label="Generate new CAPTCHA"
+                class="primary full"
+                onclick="verifyUser()"
             >
-                ↻
+                Verify & Continue
             </button>
 
-        </div>
-
-
-        <!-- CAPTCHA Input -->
-
-        <label for="captchaInput">
-            Enter CAPTCHA
-        </label>
-
-        <input
-            type="text"
-            id="captchaInput"
-            placeholder="Type the CAPTCHA"
-            autocomplete="off"
-            maxlength="5"
-        >
-
-
-        <!-- Error -->
-
-        <p
-            id="verificationError"
-            class="error"
-            role="alert"
-        ></p>
-
-
-        <!-- Verify Button -->
-
-        <button
-            type="button"
-            class="primary full"
-            onclick="verifyUser()"
-        >
-            Verify & Continue
-        </button>
+        </section>
 
     </main>
 
 
-    <!-- =========================
+    <!-- =================================================
          FOOTER
-         ========================= -->
+         ================================================= -->
 
     <footer class="site-footer">
 
-        <div class="footer-brand">
+        <div class="footer-container">
 
-            <img
-                src="engispark-logo.png"
-                alt="EngiSpark Logo"
-                class="footer-logo"
-            >
+            <div class="footer-logo">
 
-            <div class="footer-brand-text">
-
-                <strong>
-                    EngiSpark
-                </strong>
-
-                <span>
-                    Ignite Your Engineering Mind
-                </span>
+                <img
+                    src="engispark-logo.png"
+                    alt="EngiSpark Logo"
+                >
 
             </div>
 
+            <h3 class="footer-brand">
+                EngiSpark
+            </h3>
+
+            <p class="footer-tagline">
+                Ignite Your Engineering Mind
+            </p>
+
+            <p class="footer-founder">
+                Founder:
+                <strong>EngiSpark.com</strong>
+            </p>
+
+            <p class="footer-copy">
+                © 2026 EngiSpark. All rights reserved.
+            </p>
+
         </div>
-
-        <p class="footer-founder">
-            Founder: EngiSpark.com
-        </p>
-
-        <p class="footer-copyright">
-            © 2026 EngiSpark. All rights reserved.
-        </p>
 
     </footer>
 
 
-    <!-- JavaScript -->
+    <!-- =================================================
+         JAVASCRIPT
+         ================================================= -->
 
     <script src="script.js"></script>
 
