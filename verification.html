@@ -3,7 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Verification - EngiSpark</title>
 
@@ -11,6 +14,10 @@
 </head>
 
 <body class="page center">
+
+    <!-- =========================
+         VERIFICATION CARD
+         ========================= -->
 
     <main class="card auth">
 
@@ -21,10 +28,15 @@
             class="logo"
         >
 
-        <!-- Title -->
         <h1>🔐 Verification</h1>
 
+        <p class="muted">
+            Verify yourself to continue to EngiSpark.
+        </p>
+
+
         <!-- Full Name -->
+
         <label for="userName">
             Your Full Name
         </label>
@@ -36,7 +48,13 @@
             autocomplete="name"
         >
 
+
         <!-- CAPTCHA -->
+
+        <label>
+            CAPTCHA
+        </label>
+
         <div class="captcha">
 
             <b id="captchaCode">
@@ -53,7 +71,9 @@
 
         </div>
 
+
         <!-- CAPTCHA Input -->
+
         <label for="captchaInput">
             Enter CAPTCHA
         </label>
@@ -63,28 +83,73 @@
             id="captchaInput"
             placeholder="Type the CAPTCHA"
             autocomplete="off"
-            spellcheck="false"
+            maxlength="5"
         >
 
+
         <!-- Error -->
+
         <p
             id="verificationError"
             class="error"
             role="alert"
         ></p>
 
-        <!-- Verify -->
+
+        <!-- Verify Button -->
+
         <button
             type="button"
             class="primary full"
             onclick="verifyUser()"
         >
-            Verify
+            Verify & Continue
         </button>
 
     </main>
 
-    <!-- Main JavaScript -->
+
+    <!-- =========================
+         FOOTER
+         ========================= -->
+
+    <footer class="site-footer">
+
+        <div class="footer-brand">
+
+            <img
+                src="engispark-logo.png"
+                alt="EngiSpark Logo"
+                class="footer-logo"
+            >
+
+            <div class="footer-brand-text">
+
+                <strong>
+                    EngiSpark
+                </strong>
+
+                <span>
+                    Ignite Your Engineering Mind
+                </span>
+
+            </div>
+
+        </div>
+
+        <p class="footer-founder">
+            Founder: EngiSpark.com
+        </p>
+
+        <p class="footer-copyright">
+            © 2026 EngiSpark. All rights reserved.
+        </p>
+
+    </footer>
+
+
+    <!-- JavaScript -->
+
     <script src="script.js"></script>
 
 </body>
