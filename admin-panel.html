@@ -1,1 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Panel - EngiSpark</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="page">
+
+    <!-- ================= HEADER ================= -->
+
+    <header>
+
+        <a href="dashboard.html" class="brand">
+
+            <img
+                src="engispark-logo.png"
+                alt="EngiSpark Logo"
+            >
+
+            <span>EngiSpark</span>
+
+        </a>
+
+        <div class="header-actions">
+
+            <button
+                type="button"
+                class="secondary"
+                onclick="location.href='dashboard.html'"
+            >
+                🏠 Dashboard
+            </button>
+
+            <button
+                type="button"
+                class="danger"
+                onclick="adminLogout()"
+            >
+                Logout
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="container admin-container">
+
+        <!-- Page Title -->
+
+        <section class="welcome-section">
+
+            <h1>
+                🛠️ Admin Dashboard
+            </h1>
+
+            <p class="muted">
+                Manage EngiSpark quiz settings, subjects, departments and questions.
+            </p>
+
+        </section>
+
+
+        <!-- ================= ADMIN MESSAGE ================= -->
+
+        <div
+            id="adminMessage"
+            class="notice"
+            style="display: none;"
+        >
+
+            <span id="adminMessageText"></span>
+
+            <button
+                type="button"
+                onclick="hideAdminMessage()"
+                aria-label="Close"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <!-- ================= TIMER MANAGEMENT ================= -->
+
+        <section class="card admin-section">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>
+                        ⏱️ Timer Management
+                    </h2>
+
+                    <p class="muted">
+                        Set the available quiz time.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="admin-form-row">
+
+                <div class="form-group">
+
+                    <label for="adminTimer">
+                        New Quiz Time
+                    </label>
+
+                    <select id="adminTimer">
+
+                        <option value="10">
+                            10 Minutes
+                        </option>
+
+                        <option value="15">
+                            15 Minutes
+                        </option>
+
+                        <option value="20">
+                            20 Minutes
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="primary"
+                    onclick="updateTimerSetting()"
+                >
+                    💾 Update Timer
+                </button>
+
+            </div>
+
+
+            <p class="current-setting">
+                Current Time:
+                <strong id="currentTimer">
+                    15 Minutes
+                </strong>
+            </p>
+
+        </section>
+
+
+        <!-- ================= DEPARTMENT MANAGEMENT ================= -->
+
+        <section class="card admin-section">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>
+                        🏢 Department Management
+                    </h2>
+
+                    <p class="muted">
+                        Add or remove departments.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- Add Department -->
+
+            <div class="admin-form-row">
+
+                <div class="form-group">
+
+                    <label for="newDepartment">
+                        Add New Department
+                    </label>
+
+                    <input
+                        type="text"
+                        id="newDepartment"
+                        placeholder="Enter department name"
+                    >
+
+                </div>
+
+                <button
+                    type="button"
+                    class="primary"
+                    onclick="addDepartment()"
+                >
+                    ➕ Add
+                </button>
+
+            </div>
+
+
+            <!-- Department List -->
+
+            <div class="manage-list">
+
+                <h3>
+                    Current Departments
+                </h3>
+
+                <div id="departmentList">
+
+                    <!-- Departments will be generated by JavaScript -->
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= SUBJECT MANAGEMENT ================= -->
+
+        <section class="card admin-section">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>
+                        📚 Subject Management
+                    </h2>
+
+                    <p class="muted">
+                        Add or remove quiz subjects.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- Add Subject -->
+
+            <div class="admin-form-row">
+
+                <div class="form-group">
+
+                    <label for="newSubject">
+                        Add New Subject
+                    </label>
+
+                    <input
+                        type="text"
+                        id="newSubject"
+                        placeholder="Enter subject name"
+                    >
+
+                </div>
+
+                <button
+                    type="button"
+                    class="primary"
+                    onclick="addSubject()"
+                >
+                    ➕ Add
+                </button>
+
+            </div>
+
+
+            <!-- Subject List -->
+
+            <div class="manage-list">
+
+                <h3>
+                    Current Subjects
+                </h3>
+
+                <div id="subjectList">
+
+                    <!-- Subjects will be generated by JavaScript -->
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= QUESTION MANAGEMENT ================= -->
+
+        <section class="card admin-section">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <h2>
+                        ❓ Question Management
+                    </h2>
+
+                    <p class="muted">
+                        Add, edit or delete quiz questions.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- Question Form -->
+
+            <form
+                id="questionForm"
+                onsubmit="saveQuestion(event)"
+            >
+
+                <!-- Question -->
+
+                <div class="form-group">
+
+                    <label for="questionText">
+                        Question
+                    </label>
+
+                    <textarea
+                        id="questionText"
+                        rows="4"
+                        placeholder="Enter question"
+                        required
+                    ></textarea>
+
+                </div>
+
+
+                <!-- Options -->
+
+                <div class="options-grid">
+
+                    <div class="form-group">
+
+                        <label for="optionA">
+                            Option A
+                        </label>
+
+                        <input
+                            type="text"
+                            id="optionA"
+                            placeholder="Enter option A"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="optionB">
+                            Option B
+                        </label>
+
+                        <input
+                            type="text"
+                            id="optionB"
+                            placeholder="Enter option B"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="optionC">
+                            Option C
+                        </label>
+
+                        <input
+                            type="text"
+                            id="optionC"
+                            placeholder="Enter option C"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="optionD">
+                            Option D
+                        </label>
+
+                        <input
+                            type="text"
+                            id="optionD"
+                            placeholder="Enter option D"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- Correct Answer -->
+
+                <div class="admin-grid">
+
+                    <div class="form-group">
+
+                        <label for="correctAnswer">
+                            Correct Answer
+                        </label>
+
+                        <select id="correctAnswer" required>
+
+                            <option value="">
+                                Select correct answer
+                            </option>
+
+                            <option value="A">
+                                A
+                            </option>
+
+                            <option value="B">
+                                B
+                            </option>
+
+                            <option value="C">
+                                C
+                            </option>
+
+                            <option value="D">
+                                D
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Subject -->
+
+                    <div class="form-group">
+
+                        <label for="questionSubject">
+                            Subject
+                        </label>
+
+                        <select
+                            id="questionSubject"
+                            required
+                        >
+
+                            <!-- Loaded by JavaScript -->
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Department -->
+
+                    <div class="form-group">
+
+                        <label for="questionDepartment">
+                            Department
+                        </label>
+
+                        <select
+                            id="questionDepartment"
+                            required
+                        >
+
+                            <!-- Loaded by JavaScript -->
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Difficulty -->
+
+                    <div class="form-group">
+
+                        <label for="questionDifficulty">
+                            Difficulty
+                        </label>
+
+                        <select
+                            id="questionDifficulty"
+                            required
+                        >
+
+                            <option value="Easy">
+                                Easy
+                            </option>
+
+                            <option
+                                value="Medium"
+                                selected
+                            >
+                                Medium
+                            </option>
+
+                            <option value="Hard">
+                                Hard
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Hidden Question ID -->
+
+                <input
+                    type="hidden"
+                    id="editingQuestionId"
+                    value=""
+                >
+
+
+                <!-- Form Buttons -->
+
+                <div class="form-actions">
+
+                    <button
+                        type="submit"
+                        class="primary"
+                        id="questionSubmitBtn"
+                    >
+                        ➕ Add Question
+                    </button>
+
+                    <button
+                        type="button"
+                        class="secondary"
+                        onclick="resetQuestionForm()"
+                    >
+                        ↻ Clear
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- ================= QUESTION LIST ================= -->
+
+        <section class="card admin-section">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <h2>
+                        📋 All Questions
+                    </h2>
+
+                    <p class="muted">
+                        Manage all questions stored in EngiSpark.
+                    </p>
+
+                </div>
+
+                <div class="question-count">
+
+                    Total:
+                    <strong id="questionCount">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- Search -->
+
+            <div class="form-group">
+
+                <label for="questionSearch">
+                    Search Questions
+                </label>
+
+                <input
+                    type="search"
+                    id="questionSearch"
+                    placeholder="Search by question, subject or department..."
+                    oninput="filterAdminQuestions()"
+                >
+
+            </div>
+
+
+            <!-- Questions -->
+
+            <div
+                id="adminQuestionList"
+                class="admin-question-list"
+            >
+
+                <!-- Questions will be generated by JavaScript -->
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer>
+
+        <div>
+            <strong>EngiSpark</strong>
+            — Ignite Your Engineering Mind
+        </div>
+
+        <div>
+            Made by Ayush Chatterjee
+        </div>
+
+        <div>
+
+            <a
+                href="https://founderappernam.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                founderappernam.com
+            </a>
+
+        </div>
+
+        <div>
+            © 2026 EngiSpark. All rights reserved.
+        </div>
+
+    </footer>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
