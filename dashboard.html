@@ -1,313 +1,93 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Dashboard - EngiSpark</title>
-
+    <title>EngiSpark — Dashboard</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="engispark-logo.png">
 </head>
-
-<body class="page">
-
-    <!-- ================= HEADER ================= -->
-
-    <header>
-
-        <a href="dashboard.html" class="brand">
-
-            <img
-                src="engispark-logo.png"
-                alt="EngiSpark Logo"
-            >
-
-            <span>EngiSpark</span>
-
-        </a>
-
-        <button
-            type="button"
-            class="secondary"
-            onclick="location.href='admin-login.html'"
-        >
-            🔐 Admin
-        </button>
-
-    </header>
-
-
-    <!-- ================= MAIN CONTENT ================= -->
-
-    <main class="container">
-
-        <!-- Welcome Section -->
-
-        <section class="welcome-section">
-
-            <h1>
-                👋 Welcome,
-                <span id="userName">Student</span>!
-            </h1>
-
-            <p class="muted">
-                Choose your quiz preferences and start learning.
-            </p>
-
-        </section>
-
-
-        <!-- ================= WELCOME POPUP ================= -->
-
-        <div
-            id="welcomePopup"
-            class="notice"
-        >
-
-            <span>
-                🎓 <b>Welcome to EngiSpark!</b>
-            </span>
-
-            <button
-                type="button"
-                onclick="this.parentElement.remove()"
-                aria-label="Close"
-            >
-                ×
-            </button>
-
-        </div>
-
-
-        <!-- ================= START QUIZ ================= -->
-
-        <section class="card quiz-section">
-
-            <button
-                type="button"
-                class="quiztab"
-                onclick="toggleQuizConfig()"
-            >
-                📝 Start Quiz
-            </button>
-
-
-            <!-- QUIZ SETTINGS -->
-
-            <div
-                id="quizConfig"
-                class="quiz-config"
-            >
-
-                <div class="grid">
-
-
-                    <!-- ================= YEAR ================= -->
-
-                    <div>
-
-                        <label for="yearSelect">
-                            Year
-                        </label>
-
-                        <select id="yearSelect">
-
-                            <option value="1st Year">
-                                1st Year
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- ================= DEPARTMENT ================= -->
-
-                    <div>
-
-                        <label for="departmentSelect">
-                            Department
-                        </label>
-
-                        <select id="departmentSelect">
-
-                            <option value="CSE">
-                                CSE
-                            </option>
-
-                            <option value="EE">
-                                EE
-                            </option>
-
-                            <option value="Civil">
-                                Civil
-                            </option>
-
-                            <option value="Mechanical">
-                                Mechanical
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- ================= SUBJECT ================= -->
-
-                    <div>
-
-                        <label for="subjectSelect">
-                            Subject
-                        </label>
-
-                        <select id="subjectSelect">
-
-                            <option value="Mathematics">
-                                Mathematics
-                            </option>
-
-                            <option value="Physics">
-                                Physics
-                            </option>
-
-                            <option value="Chemistry">
-                                Chemistry
-                            </option>
-
-                            <option value="Basic Electrical">
-                                Basic Electrical
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- ================= DIFFICULTY ================= -->
-
-                    <div>
-
-                        <label for="difficultySelect">
-                            Difficulty
-                        </label>
-
-                        <select id="difficultySelect">
-
-                            <option value="Easy">
-                                Easy
-                            </option>
-
-                            <option
-                                value="Medium"
-                                selected
-                            >
-                                Medium
-                            </option>
-
-                            <option value="Hard">
-                                Hard
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- ================= TIME ================= -->
-
-                    <div>
-
-                        <label for="timeSelect">
-                            Time
-                        </label>
-
-                        <select id="timeSelect">
-
-                            <option value="10">
-                                10 minutes
-                            </option>
-
-                            <option
-                                value="15"
-                                selected
-                            >
-                                15 minutes
-                            </option>
-
-                            <option value="20">
-                                20 minutes
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-
-                <!-- ERROR MESSAGE -->
-
-                <p
-                    id="quizStartError"
-                    class="error"
-                    role="alert"
-                ></p>
-
-
-                <!-- START QUIZ BUTTON -->
-
-                <button
-                    type="button"
-                    class="primary full"
-                    onclick="startQuiz()"
-                >
-                    🚀 Start Quiz
-                </button>
-
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="engispark-logo.png" alt="EngiSpark Logo" class="header-logo">
+                <span class="header-app-name">EngiSpark</span>
             </div>
-
+            <div class="header-right">
+                <button onclick="goToAdminLogin()" class="btn-admin">🔐 অ্যাডমিন</button>
+            </div>
+        </header>
+        <section class="welcome-section">
+            <h2>👋 Welcome, <span id="userNameDisplay">User</span>!</h2>
+            <div class="popup-message">
+                <img src="engispark-logo.png" alt="EngiSpark Logo" class="popup-logo">
+                <p>স্বাগতম <strong>EngiSpark</strong> এ!</p>
+                <p class="popup-tagline">Ignite Your Engineering Mind</p>
+            </div>
         </section>
-
-    </main>
-
-
-    <!-- ================= FOOTER ================= -->
-
-    <footer>
-
-        <div>
-            <strong>EngiSpark</strong>
-            — Ignite Your Engineering Mind
-        </div>
-
-        <div>
-            Made by Ayush Chatterjee
-        </div>
-
-        <div>
-
-            <a
-                href="https://founderappernam.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                founderappernam.com
-            </a>
-
-        </div>
-
-        <div>
-            © 2026 EngiSpark. All rights reserved.
-        </div>
-
-    </footer>
-
-
-    <!-- ================= JAVASCRIPT ================= -->
-
+        <section class="quiz-setup-section">
+            <div class="quiz-setup-card">
+                <h3>📝 Start Quiz</h3>
+                <div class="setup-form">
+                    <div class="form-group">
+                        <label>📚 ইয়ার</label>
+                        <select id="yearSelect" class="form-select">
+                            <option value="1st">1st Year</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>🏢 ডিপার্টমেন্ট</label>
+                        <select id="departmentSelect" class="form-select">
+                            <option value="CSE">CSE</option>
+                            <option value="EEE">EEE</option>
+                            <option value="Civil">Civil</option>
+                            <option value="Mechanical">Mechanical</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>📖 সাবজেক্ট</label>
+                        <select id="subjectSelect" class="form-select">
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Basic Electrical">Basic Electrical</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>⚡ ডিফিকাল্টি</label>
+                        <select id="difficultySelect" class="form-select">
+                            <option value="Easy">Easy</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="Hard">Hard</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>⏱️ সময়</label>
+                        <select id="timeSelect" class="form-select">
+                            <option value="10">১০ মিনিট</option>
+                            <option value="15" selected>১৫ মিনিট</option>
+                            <option value="20">২০ মিনিট</option>
+                        </select>
+                    </div>
+                    <button onclick="startQuiz()" class="btn-primary btn-start">🚀 Start Quiz</button>
+                </div>
+            </div>
+        </section>
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="engispark-logo.png" alt="EngiSpark Logo" class="footer-logo-img">
+                    <span class="footer-app-name">EngiSpark</span>
+                </div>
+                <p class="footer-tagline">Ignite Your Engineering Mind</p>
+                <p class="footer-founder">
+                    Founder: <a href="https://engispark.com" target="_blank">EngiSpark.com</a>
+                </p>
+                <p class="footer-copyright">© 2026 EngiSpark. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
     <script src="script.js"></script>
-
 </body>
-
 </html>
