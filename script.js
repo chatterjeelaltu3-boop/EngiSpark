@@ -1,3475 +1,435 @@
-/* =========================================================
-   EngiSpark
-   Main JavaScript
-   CAPTCHA FIX + CLOUDFLARE AI
-   ========================================================= */
-
-
-/* =========================================================
-   CLOUDFLARE AI API
-   ========================================================= */
-
-const AI_API_URL =
-    "https://engispark-api.engisparkquiz2026.workers.dev/api/generate-questions";
-
-
-/* =========================================================
-   DEFAULT DATA
-   ========================================================= */
-
-const DEFAULT_DEPARTMENTS = [
-    "CSE",
-    "EE",
-    "Civil",
-    "Mechanical"
-];
-
-const DEFAULT_SUBJECTS = [
-    "Mathematics",
-    "Physics",
-    "Chemistry",
-    "Basic Electrical"
-];
-
-const DEFAULT_TIMER = 15;
-
-
-/* =========================================================
-   LOCAL STORAGE HELPERS
-   ========================================================= */
-
-function getDepartments() {
-
-    const data =
-        localStorage.getItem("engiSparkDepartments");
-
-    if (!data) {
-
-        localStorage.setItem(
-            "engiSparkDepartments",
-            JSON.stringify(DEFAULT_DEPARTMENTS)
-        );
-
-        return [...DEFAULT_DEPARTMENTS];
-    }
-
-    try {
-
-        const parsed = JSON.parse(data);
-
-        return Array.isArray(parsed)
-            ? parsed
-            : [...DEFAULT_DEPARTMENTS];
-
-    } catch {
-
-        return [...DEFAULT_DEPARTMENTS];
-    }
+/* ========== RESET & BASE ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f5f5;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+a {
+    text-decoration: none;
 }
 
-
-function saveDepartments(data) {
-
-    localStorage.setItem(
-        "engiSparkDepartments",
-        JSON.stringify(data)
-    );
+/* ========== BUTTONS ========== */
+.btn-primary {
+    background: #FF6B00;
+    color: #fff;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.btn-primary:hover {
+    background: #e05f00;
+    transform: scale(1.02);
+}
+.btn-secondary {
+    background: #1A1A2E;
+    color: #fff;
+    border: 2px solid #FF6B00;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.btn-secondary:hover {
+    background: #FF6B00;
 }
 
-
-function getSubjects() {
-
-    const data =
-        localStorage.getItem("engiSparkSubjects");
-
-    if (!data) {
-
-        localStorage.setItem(
-            "engiSparkSubjects",
-            JSON.stringify(DEFAULT_SUBJECTS)
-        );
-
-        return [...DEFAULT_SUBJECTS];
-    }
-
-    try {
-
-        const parsed = JSON.parse(data);
-
-        return Array.isArray(parsed)
-            ? parsed
-            : [...DEFAULT_SUBJECTS];
-
-    } catch {
-
-        return [...DEFAULT_SUBJECTS];
-    }
+/* ========== SPLASH PAGE ========== */
+.splash-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #1A1A2E 0%, #2D2D44 100%);
+    padding: 20px;
+}
+.splash-content {
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.splash-logo-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid #FF6B00;
+    margin-bottom: 20px;
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+.splash-app-name {
+    font-size: 48px;
+    color: #FF6B00;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+.splash-tagline {
+    font-size: 18px;
+    color: #FFD700;
+    font-style: italic;
+    margin-bottom: 30px;
+}
+.splash-btn {
+    font-size: 20px;
+    padding: 15px 50px;
 }
 
-
-function saveSubjects(data) {
-
-    localStorage.setItem(
-        "engiSparkSubjects",
-        JSON.stringify(data)
-    );
+/* ========== VERIFICATION PAGE ========== */
+.verification-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #1A1A2E 0%, #2D2D44 100%);
+    padding: 20px;
+}
+.verification-box {
+    max-width: 500px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    flex: 1;
+}
+.verification-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+.verification-logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid #FF6B00;
+    margin-bottom: 10px;
+}
+.verification-header h2 {
+    color: #1A1A2E;
+    font-size: 28px;
+}
+.verification-sub {
+    color: #888;
+    font-size: 14px;
 }
 
-
-function getTimerSetting() {
-
-    const data =
-        localStorage.getItem("engiSparkTimer");
-
-    if (!data) {
-
-        localStorage.setItem(
-            "engiSparkTimer",
-            DEFAULT_TIMER
-        );
-
-        return DEFAULT_TIMER;
-    }
-
-    return Number(data) || DEFAULT_TIMER;
+/* ========== CAPTCHA ========== */
+.captcha-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.captcha-text {
+    background: #1A1A2E;
+    color: #FFD700;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    font-family: 'Courier New', monospace;
+    user-select: none;
+    flex: 1;
+    text-align: center;
+}
+.btn-refresh {
+    background: #1A1A2E;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.btn-refresh:hover {
+    background: #FF6B00;
 }
 
-
-function saveTimerSetting(minutes) {
-
-    localStorage.setItem(
-        "engiSparkTimer",
-        minutes
-    );
+/* ========== FORM ELEMENTS ========== */
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+}
+.form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border 0.3s ease;
+}
+.form-input:focus {
+    outline: none;
+    border-color: #FF6B00;
+}
+.form-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    background: #fff;
+    cursor: pointer;
+    transition: border 0.3s ease;
+}
+.form-select:focus {
+    outline: none;
+    border-color: #FF6B00;
+}
+.error-message {
+    color: #ff4444;
+    font-weight: 600;
+    margin-top: 10px;
+    text-align: center;
 }
 
-
-/* =========================================================
-   USER VERIFICATION / CAPTCHA
-   ========================================================= */
-
-let captchaCode = "";
-
-
-function generateCaptcha() {
-
-    const characters =
-        "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789#$@";
-
-    let result = "";
-
-    for (let i = 0; i < 5; i++) {
-
-        const randomIndex =
-            Math.floor(
-                Math.random() * characters.length
-            );
-
-        result += characters[randomIndex];
-    }
-
-    captchaCode = result;
-
-    /*
-       IMPORTANT:
-       verification.html uses id="captchaCode"
-    */
-
-    const captchaElement =
-        document.getElementById("captchaCode");
-
-    if (captchaElement) {
-
-        captchaElement.textContent =
-            captchaCode;
-    }
+/* ========== DASHBOARD ========== */
+.dashboard-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #f5f5f5;
+}
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background: #1A1A2E;
+    border-bottom: 3px solid #FF6B00;
+}
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.header-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #FF6B00;
+}
+.header-app-name {
+    font-size: 24px;
+    font-weight: 700;
+    color: #FF6B00;
+}
+.btn-admin {
+    background: transparent;
+    color: #FFD700;
+    border: 2px solid #FFD700;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+.btn-admin:hover {
+    background: #FFD700;
+    color: #1A1A2E;
+}
+.welcome-section {
+    background: linear-gradient(135deg, #1A1A2E 0%, #2D2D44 100%);
+    padding: 30px 30px 50px;
+    text-align: center;
+    color: #fff;
+}
+.welcome-section h2 {
+    font-size: 28px;
+    margin-bottom: 15px;
+}
+.popup-message {
+    background: #fff;
+    color: #333;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 400px;
+    margin: 0 auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.popup-logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #FF6B00;
+    margin-bottom: 10px;
+}
+.popup-message strong {
+    color: #FF6B00;
+}
+.popup-tagline {
+    color: #FFD700;
+    font-style: italic;
+    font-size: 14px;
+}
+.quiz-setup-section {
+    flex: 1;
+    padding: 30px;
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
+.quiz-setup-card {
+    background: #fff;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+.quiz-setup-card h3 {
+    color: #1A1A2E;
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+.btn-start {
+    width: 100%;
+    padding: 15px;
+    font-size: 20px;
+    margin-top: 10px;
 }
 
-
-function verifyUser() {
-
-    /*
-       IMPORTANT:
-       verification.html uses id="userName"
-    */
-
-    const nameInput =
-        document.getElementById("userName");
-
-    const captchaInput =
-        document.getElementById("captchaInput");
-
-    /*
-       IMPORTANT:
-       verification.html uses id="verificationError"
-    */
-
-    const errorElement =
-        document.getElementById("verificationError");
-
-    if (!nameInput || !captchaInput) {
-        return;
-    }
-
-    const name =
-        nameInput.value.trim();
-
-    const enteredCaptcha =
-        captchaInput.value.trim();
-
-    if (!name) {
-
-        if (errorElement) {
-
-            errorElement.textContent =
-                "Please enter your full name.";
-        }
-
-        return;
-    }
-
-    if (!enteredCaptcha) {
-
-        if (errorElement) {
-
-            errorElement.textContent =
-                "Please enter the CAPTCHA.";
-        }
-
-        return;
-    }
-
-    if (!captchaCode) {
-
-        if (errorElement) {
-
-            errorElement.textContent =
-                "CAPTCHA is not ready. Please refresh it.";
-        }
-
-        generateCaptcha();
-
-        return;
-    }
-
-    if (
-        enteredCaptcha.toLowerCase() !==
-        captchaCode.toLowerCase()
-    ) {
-
-        if (errorElement) {
-
-            errorElement.textContent =
-                "CAPTCHA is incorrect, please try again.";
-        }
-
-        captchaInput.value = "";
-
-        generateCaptcha();
-
-        return;
-    }
-
-    localStorage.setItem(
-        "engiSparkUserName",
-        name
-    );
-
-    localStorage.setItem(
-        "engiSparkVerified",
-        "true"
-    );
-
-    if (errorElement) {
-
-        errorElement.textContent = "";
-    }
-
-    window.location.href =
-        "dashboard.html";
+/* ========== QUIZ PAGE ========== */
+.quiz-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #f5f5f5;
 }
-
-
-/* =========================================================
-   DASHBOARD
-   ========================================================= */
-
-function loadDashboard() {
-
-    const nameElement =
-        document.getElementById("userNameDisplay");
-
-    const popup =
-        document.getElementById("welcomePopup");
-
-    const name =
-        localStorage.getItem("engiSparkUserName");
-
-    if (nameElement) {
-
-        nameElement.textContent =
-            name || "Student";
-    }
-
-    if (popup) {
-
-        popup.style.display = "flex";
-
-        setTimeout(() => {
-
-            popup.style.display = "none";
-
-        }, 4000);
-    }
-
-    populateDashboardDepartments();
-    populateDashboardSubjects();
-
-    const timer =
-        getTimerSetting();
-
-    const timerSelect =
-        document.getElementById("quizTime");
-
-    if (timerSelect) {
-
-        timerSelect.value =
-            String(timer);
-    }
+.quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background: #1A1A2E;
+    border-bottom: 3px solid #FF6B00;
 }
-
-
-function populateDashboardDepartments() {
-
-    const select =
-        document.getElementById("department");
-
-    if (!select) {
-        return;
-    }
-
-    const departments =
-        getDepartments();
-
-    select.innerHTML = "";
-
-    departments.forEach(
-        department => {
-
-            const option =
-                document.createElement("option");
-
-            option.value =
-                department;
-
-            option.textContent =
-                department;
-
-            select.appendChild(option);
-        }
-    );
+.timer {
+    color: #FFD700;
+    font-size: 22px;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
 }
-
-
-function populateDashboardSubjects() {
-
-    const select =
-        document.getElementById("subject");
-
-    if (!select) {
-        return;
-    }
-
-    const subjects =
-        getSubjects();
-
-    select.innerHTML = "";
-
-    subjects.forEach(
-        subject => {
-
-            const option =
-                document.createElement("option");
-
-            option.value =
-                subject;
-
-            option.textContent =
-                subject;
-
-            select.appendChild(option);
-        }
-    );
+.quiz-progress {
+    padding: 20px 30px;
+    background: #fff;
+    border-bottom: 1px solid #eee;
 }
-
-
-/* =========================================================
-   START QUIZ
-   ========================================================= */
-
-function startQuiz() {
-
-    const department =
-        document.getElementById("department")?.value;
-
-    const subject =
-        document.getElementById("subject")?.value;
-
-    const difficulty =
-        document.getElementById("difficulty")?.value;
-
-    const time =
-        document.getElementById("quizTime")?.value;
-
-    const quizSettings = {
-
-        year: "1st Year",
-
-        department:
-            department || "CSE",
-
-        subject:
-            subject || "Mathematics",
-
-        difficulty:
-            difficulty || "Medium",
-
-        time:
-            Number(time) || getTimerSetting()
-    };
-
-    localStorage.setItem(
-        "engiSparkQuizSettings",
-        JSON.stringify(quizSettings)
-    );
-
-    window.location.href =
-        "quiz.html";
+#questionCounter {
+    font-weight: 600;
+    font-size: 16px;
+    display: block;
+    margin-bottom: 8px;
 }
-
-
-/* =========================================================
-   QUESTION DATA
-   ========================================================= */
-
-let allQuestions = [];
-
-let quizQuestions = [];
-
-let currentQuestionIndex = 0;
-
-let userAnswers = {};
-
-let quizStartTime = null;
-
-let quizEndTime = null;
-
-let quizTimerInterval = null;
-
-
-/* =========================================================
-   LOAD QUESTIONS
-   ========================================================= */
-
-async function loadQuestions() {
-
-    try {
-
-        const response =
-            await fetch("questions.json");
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Unable to load questions.json"
-            );
-        }
-
-        const data =
-            await response.json();
-
-        allQuestions =
-            Array.isArray(data)
-                ? data
-                : [];
-
-        return allQuestions;
-
-    } catch (error) {
-
-        console.warn(
-            "questions.json unavailable. Using saved questions.",
-            error
-        );
-
-        const savedQuestions =
-            localStorage.getItem(
-                "engiSparkQuestions"
-            );
-
-        if (savedQuestions) {
-
-            try {
-
-                const parsed =
-                    JSON.parse(savedQuestions);
-
-                allQuestions =
-                    Array.isArray(parsed)
-                        ? parsed
-                        : [];
-
-                return allQuestions;
-
-            } catch {
-
-                allQuestions = [];
-            }
-        }
-
-        return [];
-    }
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
 }
-
-
-/* =========================================================
-   SAVE QUESTIONS
-   ========================================================= */
-
-function saveQuestions() {
-
-    localStorage.setItem(
-        "engiSparkQuestions",
-        JSON.stringify(allQuestions)
-    );
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #FF6B00, #FFD700);
+    border-radius: 4px;
+    transition: width 0.3s ease;
 }
-
-
-/* =========================================================
-   SHUFFLE
-   ========================================================= */
-
-function shuffleArray(array) {
-
-    const copy =
-        [...array];
-
-    for (
-        let i = copy.length - 1;
-        i > 0;
-        i--
-    ) {
-
-        const j =
-            Math.floor(
-                Math.random() * (i + 1)
-            );
-
-        [
-            copy[i],
-            copy[j]
-        ] = [
-            copy[j],
-            copy[i]
-        ];
-    }
-
-    return copy;
+.question-area {
+    flex: 1;
+    padding: 30px;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
 }
-
-
-/* =========================================================
-   PREPARE QUIZ
-   ========================================================= */
-
-async function prepareQuiz() {
-
-    const settingsData =
-        localStorage.getItem(
-            "engiSparkQuizSettings"
-        );
-
-    if (!settingsData) {
-
-        window.location.href =
-            "dashboard.html";
-
-        return;
-    }
-
-    let settings;
-
-    try {
-
-        settings =
-            JSON.parse(settingsData);
-
-    } catch {
-
-        window.location.href =
-            "dashboard.html";
-
-        return;
-    }
-
-    const questions =
-        await loadQuestions();
-
-    let filteredQuestions =
-        questions.filter(question => {
-
-            const departmentMatch =
-                !question.department ||
-                question.department ===
-                settings.department;
-
-            const subjectMatch =
-                !question.subject ||
-                question.subject ===
-                settings.subject;
-
-            const difficultyMatch =
-                !question.difficulty ||
-                question.difficulty ===
-                settings.difficulty;
-
-            return (
-                departmentMatch &&
-                subjectMatch &&
-                difficultyMatch
-            );
-        });
-
-    if (filteredQuestions.length < 10) {
-
-        filteredQuestions =
-            questions.filter(question => {
-
-                const departmentMatch =
-                    !question.department ||
-                    question.department ===
-                    settings.department;
-
-                const subjectMatch =
-                    !question.subject ||
-                    question.subject ===
-                    settings.subject;
-
-                return (
-                    departmentMatch &&
-                    subjectMatch
-                );
-            });
-    }
-
-    if (filteredQuestions.length < 10) {
-
-        filteredQuestions =
-            questions;
-    }
-
-    quizQuestions =
-        shuffleArray(
-            filteredQuestions
-        ).slice(0, 10);
-
-    quizQuestions =
-        quizQuestions.map(question => {
-
-            const optionObjects = [
-
-                {
-                    key: "A",
-                    text: question.optionA
-                },
-
-                {
-                    key: "B",
-                    text: question.optionB
-                },
-
-                {
-                    key: "C",
-                    text: question.optionC
-                },
-
-                {
-                    key: "D",
-                    text: question.optionD
-                }
-
-            ];
-
-            const shuffledOptions =
-                shuffleArray(
-                    optionObjects
-                );
-
-            return {
-                ...question,
-                shuffledOptions
-            };
-        });
-
-    currentQuestionIndex = 0;
-
-    userAnswers = {};
-
-    quizStartTime =
-        Date.now();
-
-    quizEndTime = null;
-
-    localStorage.setItem(
-        "engiSparkQuizQuestions",
-        JSON.stringify(quizQuestions)
-    );
-
-    localStorage.setItem(
-        "engiSparkUserAnswers",
-        JSON.stringify(userAnswers)
-    );
-
-    displayQuizSettings();
-
-    displayQuestion();
-
-    startQuizTimer(
-        settings.time
-    );
+#questionText {
+    font-size: 22px;
+    color: #1A1A2E;
+    margin-bottom: 25px;
+    line-height: 1.6;
 }
-
-
-/* =========================================================
-   DISPLAY QUIZ SETTINGS
-   ========================================================= */
-
-function displayQuizSettings() {
-
-    const settingsData =
-        localStorage.getItem(
-            "engiSparkQuizSettings"
-        );
-
-    if (!settingsData) {
-        return;
-    }
-
-    let settings;
-
-    try {
-
-        settings =
-            JSON.parse(settingsData);
-
-    } catch {
-
-        return;
-    }
-
-    const subjectElement =
-        document.getElementById(
-            "quizSubject"
-        );
-
-    if (subjectElement) {
-
-        subjectElement.textContent =
-            settings.subject;
-    }
+.options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
-
-
-/* =========================================================
-   DISPLAY QUESTION
-   ========================================================= */
-
-function displayQuestion() {
-
-    const question =
-        quizQuestions[
-            currentQuestionIndex
-        ];
-
-    if (!question) {
-        return;
-    }
-
-    const numberElement =
-        document.getElementById(
-            "questionNumber"
-        );
-
-    if (numberElement) {
-
-        numberElement.textContent =
-            `Question ${
-                currentQuestionIndex + 1
-            }/${quizQuestions.length}`;
-    }
-
-    const questionText =
-        document.getElementById(
-            "questionText"
-        );
-
-    if (questionText) {
-
-        questionText.textContent =
-            question.question;
-    }
-
-    const optionsContainer =
-        document.getElementById(
-            "options"
-        );
-
-    if (!optionsContainer) {
-        return;
-    }
-
-    optionsContainer.innerHTML = "";
-
-    question.shuffledOptions.forEach(
-        option => {
-
-            const label =
-                document.createElement(
-                    "label"
-                );
-
-            label.className =
-                "option";
-
-            const radio =
-                document.createElement(
-                    "input"
-                );
-
-            radio.type =
-                "radio";
-
-            radio.name =
-                "quizOption";
-
-            radio.value =
-                option.key;
-
-            if (
-                userAnswers[
-                    currentQuestionIndex
-                ] === option.key
-            ) {
-
-                radio.checked = true;
-
-                label.classList.add(
-                    "selected"
-                );
-            }
-
-            radio.addEventListener(
-                "change",
-                () => {
-
-                    selectAnswer(
-                        option.key
-                    );
-
-                    updateOptionStyles();
-                }
-            );
-
-            const text =
-                document.createElement(
-                    "span"
-                );
-
-            text.className =
-                "option-text";
-
-            text.textContent =
-                `${option.key}. ${option.text}`;
-
-            label.appendChild(radio);
-
-            label.appendChild(text);
-
-            optionsContainer.appendChild(
-                label
-            );
-        }
-    );
-
-    updateNavigationButtons();
-
-    updateProgress();
+.option-item {
+    background: #fff;
+    padding: 15px 20px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
 }
-
-
-/* =========================================================
-   SELECT ANSWER
-   ========================================================= */
-
-function selectAnswer(answer) {
-
-    userAnswers[
-        currentQuestionIndex
-    ] = answer;
-
-    localStorage.setItem(
-        "engiSparkUserAnswers",
-        JSON.stringify(userAnswers)
-    );
+.option-item:hover {
+    border-color: #FF6B00;
+    transform: translateX(5px);
 }
-
-
-function updateOptionStyles() {
-
-    const options =
-        document.querySelectorAll(
-            ".option"
-        );
-
-    options.forEach(option => {
-
-        const radio =
-            option.querySelector(
-                "input"
-            );
-
-        if (
-            radio &&
-            radio.checked
-        ) {
-
-            option.classList.add(
-                "selected"
-            );
-
-        } else {
-
-            option.classList.remove(
-                "selected"
-            );
-        }
-    });
+.option-item.selected {
+    border-color: #FF6B00;
+    background: #FFF0E6;
 }
-
-
-/* =========================================================
-   NAVIGATION
-   ========================================================= */
-
-function previousQuestion() {
-
-    if (
-        currentQuestionIndex <= 0
-    ) {
-        return;
-    }
-
-    currentQuestionIndex--;
-
-    displayQuestion();
+.option-item .option-letter {
+    font-weight: 700;
+    color: #FF6B00;
+    margin-right: 10px;
 }
-
-
-function nextQuestion() {
-
-    if (
-        currentQuestionIndex <
-        quizQuestions.length - 1
-    ) {
-
-        currentQuestionIndex++;
-
-        displayQuestion();
-
-        return;
-    }
-
-    submitQuiz(false);
+.quiz-navigation {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 30px 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
 }
-
-
-function updateNavigationButtons() {
-
-    const previous =
-        document.getElementById(
-            "prevBtn"
-        );
-
-    const next =
-        document.getElementById(
-            "nextBtn"
-        );
-
-    if (previous) {
-
-        previous.disabled =
-            currentQuestionIndex === 0;
-    }
-
-    if (next) {
-
-        if (
-            currentQuestionIndex ===
-            quizQuestions.length - 1
-        ) {
-
-            next.textContent =
-                "✔ Finish";
-
-        } else {
-
-            next.textContent =
-                "Next ►";
-        }
-    }
+.btn-nav {
+    background: #1A1A2E;
+    color: #fff;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
-
-
-/* =========================================================
-   PROGRESS
-   ========================================================= */
-
-function updateProgress() {
-
-    const progress =
-        document.getElementById(
-            "progressBar"
-        );
-
-    if (!progress) {
-        return;
-    }
-
-    if (!quizQuestions.length) {
-        progress.style.width = "0%";
-        return;
-    }
-
-    const percentage =
-        (
-            (
-                currentQuestionIndex + 1
-            )
-            /
-            quizQuestions.length
-        ) * 100;
-
-    progress.style.width =
-        `${percentage}%`;
+.btn-nav:hover {
+    background: #FF6B00;
 }
-
-
-/* =========================================================
-   QUIZ TIMER
-   ========================================================= */
-
-function startQuizTimer(minutes) {
-
-    clearInterval(
-        quizTimerInterval
-    );
-
-    let remainingSeconds =
-        Number(minutes) * 60;
-
-    const timerElement =
-        document.getElementById(
-            "timer"
-        );
-
-    const timerBox =
-        document.querySelector(
-            ".quiz-timer"
-        );
-
-    function updateTimer() {
-
-        const mins =
-            Math.floor(
-                remainingSeconds / 60
-            );
-
-        const secs =
-            remainingSeconds % 60;
-
-        if (timerElement) {
-
-            timerElement.textContent =
-                `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-        }
-
-        if (
-            remainingSeconds <= 60 &&
-            timerBox
-        ) {
-
-            timerBox.classList.add(
-                "warning"
-            );
-        }
-
-        if (
-            remainingSeconds <= 0
-        ) {
-
-            clearInterval(
-                quizTimerInterval
-            );
-
-            submitQuiz(true);
-
-            return;
-        }
-
-        remainingSeconds--;
-    }
-
-    updateTimer();
-
-    quizTimerInterval =
-        setInterval(
-            updateTimer,
-            1000
-        );
+.btn-nav:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
-
-
-/* =========================================================
-   SUBMIT QUIZ
-   ========================================================= */
-
-function submitQuiz(autoSubmit = false) {
-
-    if (
-        !quizQuestions.length
-    ) {
-        return;
-    }
-
-    if (
-        localStorage.getItem(
-            "engiSparkQuizSubmitted"
-        ) === "true"
-    ) {
-        return;
-    }
-
-    const unanswered =
-        quizQuestions.length -
-        Object.keys(userAnswers).length;
-
-    if (
-        !autoSubmit &&
-        unanswered > 0
-    ) {
-
-        const shouldSubmit =
-            confirm(
-                `You have ${unanswered} unanswered question(s). Submit anyway?`
-            );
-
-        if (!shouldSubmit) {
-            return;
-        }
-    }
-
-    clearInterval(
-        quizTimerInterval
-    );
-
-    quizEndTime =
-        Date.now();
-
-    let correct = 0;
-
-    const wrongAnswers = [];
-
-    quizQuestions.forEach(
-        (question, index) => {
-
-            const userAnswer =
-                userAnswers[index];
-
-            const correctAnswer =
-                question.correctAnswer;
-
-            if (
-                userAnswer ===
-                correctAnswer
-            ) {
-
-                correct++;
-
-            } else {
-
-                const correctOption =
-                    question.shuffledOptions.find(
-                        option =>
-                            option.key ===
-                            correctAnswer
-                    );
-
-                const userOption =
-                    question.shuffledOptions.find(
-                        option =>
-                            option.key ===
-                            userAnswer
-                    );
-
-                wrongAnswers.push({
-
-                    question:
-                        question.question,
-
-                    questionNumber:
-                        index + 1,
-
-                    userAnswer:
-                        userOption
-                            ? `${userOption.key}. ${userOption.text}`
-                            : "Not answered",
-
-                    correctAnswer:
-                        correctOption
-                            ? `${correctOption.key}. ${correctOption.text}`
-                            : correctAnswer
-                });
-            }
-        }
-    );
-
-    const total =
-        quizQuestions.length;
-
-    const percentage =
-        Math.round(
-            (correct / total) * 100
-        );
-
-    const timeTaken =
-        quizEndTime -
-        quizStartTime;
-
-    const result = {
-
-        score: correct,
-
-        total: total,
-
-        percentage: percentage,
-
-        correct: correct,
-
-        wrong:
-            total - correct,
-
-        wrongAnswers:
-            wrongAnswers,
-
-        timeTaken:
-            timeTaken
-    };
-
-    localStorage.setItem(
-        "engiSparkQuizResult",
-        JSON.stringify(result)
-    );
-
-    localStorage.setItem(
-        "engiSparkQuizSubmitted",
-        "true"
-    );
-
-    window.location.href =
-        "result.html";
-}
-
-
-/* =========================================================
-   RESULT
-   ========================================================= */
-
-function loadResult() {
-
-    const resultData =
-        localStorage.getItem(
-            "engiSparkQuizResult"
-        );
-
-    if (!resultData) {
-        return;
-    }
-
-    let result;
-
-    try {
-
-        result =
-            JSON.parse(resultData);
-
-    } catch {
-
-        return;
-    }
-
-    const score =
-        document.getElementById(
-            "score"
-        );
-
-    if (score) {
-
-        score.textContent =
-            `${result.score}/${result.total}`;
-    }
-
-    const percentage =
-        document.getElementById(
-            "percentage"
-        );
-
-    if (percentage) {
-
-        percentage.textContent =
-            `${result.percentage}%`;
-    }
-
-    const correct =
-        document.getElementById(
-            "correctCount"
-        );
-
-    if (correct) {
-
-        correct.textContent =
-            result.correct;
-    }
-
-    const wrong =
-        document.getElementById(
-            "wrongCount"
-        );
-
-    if (wrong) {
-
-        wrong.textContent =
-            result.wrong;
-    }
-
-    const time =
-        document.getElementById(
-            "timeTaken"
-        );
-
-    if (time) {
-
-        time.textContent =
-            formatTime(
-                result.timeTaken
-            );
-    }
-
-    displayStars(
-        result.percentage
-    );
-
-    displayWrongAnswers(
-        result.wrongAnswers
-    );
-}
-
-
-function formatTime(milliseconds) {
-
-    const totalSeconds =
-        Math.floor(
-            milliseconds / 1000
-        );
-
-    const minutes =
-        Math.floor(
-            totalSeconds / 60
-        );
-
-    const seconds =
-        totalSeconds % 60;
-
-    return `${minutes} minute${
-        minutes !== 1 ? "s" : ""
-    } ${seconds} second${
-        seconds !== 1 ? "s" : ""
-    }`;
-}
-
-
-function displayStars(percentage) {
-
-    const stars =
-        document.getElementById(
-            "stars"
-        );
-
-    if (!stars) {
-        return;
-    }
-
-    let count = 1;
-
-    if (percentage >= 90) {
-
-        count = 5;
-
-    } else if (percentage >= 80) {
-
-        count = 4;
-
-    } else if (percentage >= 60) {
-
-        count = 3;
-
-    } else if (percentage >= 40) {
-
-        count = 2;
-    }
-
-    stars.textContent =
-        "⭐".repeat(count) +
-        "☆".repeat(5 - count);
-}
-
-
-function displayWrongAnswers(
-    wrongAnswers
-) {
-
-    const container =
-        document.getElementById(
-            "wrongAnswersList"
-        );
-
-    const section =
-        document.getElementById(
-            "wrongAnswersSection"
-        );
-
-    if (!container) {
-        return;
-    }
-
-    container.innerHTML = "";
-
-    if (
-        !wrongAnswers ||
-        wrongAnswers.length === 0
-    ) {
-
-        if (section) {
-
-            section.innerHTML = `
-                <h2>🎉 Excellent!</h2>
-                <p>
-                    You answered every question correctly.
-                </p>
-            `;
-        }
-
-        return;
-    }
-
-    wrongAnswers.forEach(
-        item => {
-
-            const div =
-                document.createElement(
-                    "div"
-                );
-
-            div.className =
-                "wrong-answer";
-
-            div.innerHTML = `
-                <h3>
-                    Question ${item.questionNumber}:
-                    ${escapeHTML(item.question)}
-                </h3>
-
-                <p class="user-answer">
-                    Your answer:
-                    ${escapeHTML(item.userAnswer)}
-                </p>
-
-                <p class="correct-answer">
-                    Correct answer:
-                    ${escapeHTML(item.correctAnswer)}
-                </p>
-            `;
-
-            container.appendChild(
-                div
-            );
-        }
-    );
-}
-
-
-/* =========================================================
-   RETAKE QUIZ
-   ========================================================= */
-
-function retakeQuiz() {
-
-    localStorage.removeItem(
-        "engiSparkQuizSubmitted"
-    );
-
-    localStorage.removeItem(
-        "engiSparkQuizResult"
-    );
-
-    localStorage.removeItem(
-        "engiSparkUserAnswers"
-    );
-
-    window.location.href =
-        "dashboard.html";
-}
-
-
-/* =========================================================
-   ADMIN LOGIN
-   ========================================================= */
-
-function adminLogin() {
-
-    const username =
-        document.getElementById(
-            "adminUsername"
-        )?.value.trim();
-
-    const password =
-        document.getElementById(
-            "adminPassword"
-        )?.value;
-
-    const error =
-        document.getElementById(
-            "adminLoginError"
-        );
-
-    if (
-        username === "EngiSpark" &&
-        password === "1234"
-    ) {
-
-        sessionStorage.setItem(
-            "engiSparkAdmin",
-            "true"
-        );
-
-        window.location.href =
-            "admin-panel.html";
-
-    } else {
-
-        if (error) {
-
-            error.textContent =
-                "Wrong username or password!";
-        }
-    }
-}
-
-
-/* =========================================================
-   ADMIN ACCESS
-   ========================================================= */
-
-function checkAdminAccess() {
-
-    const loggedIn =
-        sessionStorage.getItem(
-            "engiSparkAdmin"
-        );
-
-    if (
-        loggedIn !== "true"
-    ) {
-
-        window.location.href =
-            "admin-login.html";
-    }
-}
-
-
-function adminLogout() {
-
-    sessionStorage.removeItem(
-        "engiSparkAdmin"
-    );
-
-    window.location.href =
-        "admin-login.html";
-}
-
-
-/* =========================================================
-   ADMIN MESSAGE
-   ========================================================= */
-
-function showAdminMessage(
-    message
-) {
-
-    const box =
-        document.getElementById(
-            "adminMessage"
-        );
-
-    const text =
-        document.getElementById(
-            "adminMessageText"
-        );
-
-    if (!box || !text) {
-        return;
-    }
-
-    text.textContent =
-        message;
-
-    box.style.display =
-        "flex";
-
-    setTimeout(() => {
-
-        box.style.display =
-            "none";
-
-    }, 3500);
-}
-
-
-function hideAdminMessage() {
-
-    const box =
-        document.getElementById(
-            "adminMessage"
-        );
-
-    if (box) {
-
-        box.style.display =
-            "none";
-    }
-}
-
-
-/* =========================================================
-   TIMER MANAGEMENT
-   ========================================================= */
-
-function updateTimerSetting() {
-
-    const select =
-        document.getElementById(
-            "adminTimer"
-        );
-
-    if (!select) {
-        return;
-    }
-
-    const minutes =
-        Number(select.value);
-
-    if (
-        ![10, 15, 20].includes(
-            minutes
-        )
-    ) {
-
-        showAdminMessage(
-            "Please select a valid timer."
-        );
-
-        return;
-    }
-
-    saveTimerSetting(
-        minutes
-    );
-
-    const current =
-        document.getElementById(
-            "currentTimer"
-        );
-
-    if (current) {
-
-        current.textContent =
-            `${minutes} Minutes`;
-    }
-
-    showAdminMessage(
-        "Quiz timer updated successfully."
-    );
-}
-
-
-/* =========================================================
-   DEPARTMENT MANAGEMENT
-   ========================================================= */
-
-function addDepartment() {
-
-    const input =
-        document.getElementById(
-            "newDepartment"
-        );
-
-    if (!input) {
-        return;
-    }
-
-    const name =
-        input.value.trim();
-
-    if (!name) {
-
-        showAdminMessage(
-            "Please enter a department name."
-        );
-
-        return;
-    }
-
-    const departments =
-        getDepartments();
-
-    const exists =
-        departments.some(
-            item =>
-                item.toLowerCase() ===
-                name.toLowerCase()
-        );
-
-    if (exists) {
-
-        showAdminMessage(
-            "This department already exists."
-        );
-
-        return;
-    }
-
-    departments.push(
-        name
-    );
-
-    saveDepartments(
-        departments
-    );
-
-    input.value = "";
-
-    renderDepartmentList();
-
-    populateQuestionDepartmentSelect();
-
-    populateDashboardDepartments();
-
-    populateAIDepartmentSelect();
-
-    showAdminMessage(
-        "Department added successfully."
-    );
-}
-
-
-function deleteDepartment(
-    index
-) {
-
-    const departments =
-        getDepartments();
-
-    if (
-        index < 0 ||
-        index >= departments.length
-    ) {
-        return;
-    }
-
-    const name =
-        departments[index];
-
-    const confirmed =
-        confirm(
-            `Delete department "${name}"?`
-        );
-
-    if (!confirmed) {
-        return;
-    }
-
-    departments.splice(
-        index,
-        1
-    );
-
-    saveDepartments(
-        departments
-    );
-
-    renderDepartmentList();
-
-    populateQuestionDepartmentSelect();
-
-    populateDashboardDepartments();
-
-    populateAIDepartmentSelect();
-
-    showAdminMessage(
-        "Department deleted."
-    );
-}
-
-
-function renderDepartmentList() {
-
-    const container =
-        document.getElementById(
-            "departmentList"
-        );
-
-    if (!container) {
-        return;
-    }
-
-    const departments =
-        getDepartments();
-
-    container.innerHTML = "";
-
-    if (
-        departments.length === 0
-    ) {
-
-        container.innerHTML = `
-            <div class="empty-state">
-                No departments available.
-            </div>
-        `;
-
-        return;
-    }
-
-    departments.forEach(
-        (department, index) => {
-
-            const div =
-                document.createElement(
-                    "div"
-                );
-
-            div.className =
-                "manage-item";
-
-            div.innerHTML = `
-                <span>
-                    ${escapeHTML(department)}
-                </span>
-
-                <button
-                    type="button"
-                    onclick="deleteDepartment(${index})"
-                >
-                    🗑️ Delete
-                </button>
-            `;
-
-            container.appendChild(
-                div
-            );
-        }
-    );
-}
-
-
-/* =========================================================
-   SUBJECT MANAGEMENT
-   ========================================================= */
-
-function addSubject() {
-
-    const input =
-        document.getElementById(
-            "newSubject"
-        );
-
-    if (!input) {
-        return;
-    }
-
-    const name =
-        input.value.trim();
-
-    if (!name) {
-
-        showAdminMessage(
-            "Please enter a subject name."
-        );
-
-        return;
-    }
-
-    const subjects =
-        getSubjects();
-
-    const exists =
-        subjects.some(
-            item =>
-                item.toLowerCase() ===
-                name.toLowerCase()
-        );
-
-    if (exists) {
-
-        showAdminMessage(
-            "This subject already exists."
-        );
-
-        return;
-    }
-
-    subjects.push(
-        name
-    );
-
-    saveSubjects(
-        subjects
-    );
-
-    input.value = "";
-
-    renderSubjectList();
-
-    populateQuestionSubjectSelect();
-
-    populateDashboardSubjects();
-
-    populateAISubjectSelect();
-
-    showAdminMessage(
-        "Subject added successfully."
-    );
-}
-
-
-function deleteSubject(
-    index
-) {
-
-    const subjects =
-        getSubjects();
-
-    if (
-        index < 0 ||
-        index >= subjects.length
-    ) {
-        return;
-    }
-
-    const name =
-        subjects[index];
-
-    const confirmed =
-        confirm(
-            `Delete subject "${name}"?`
-        );
-
-    if (!confirmed) {
-        return;
-    }
-
-    subjects.splice(
-        index,
-        1
-    );
-
-    saveSubjects(
-        subjects
-    );
-
-    renderSubjectList();
-
-    populateQuestionSubjectSelect();
-
-    populateDashboardSubjects();
-
-    populateAISubjectSelect();
-
-    showAdminMessage(
-        "Subject deleted."
-    );
-}
-
-
-function renderSubjectList() {
-
-    const container =
-        document.getElementById(
-            "subjectList"
-        );
-
-    if (!container) {
-        return;
-    }
-
-    const subjects =
-        getSubjects();
-
-    container.innerHTML = "";
-
-    if (
-        subjects.length === 0
-    ) {
-
-        container.innerHTML = `
-            <div class="empty-state">
-                No subjects available.
-            </div>
-        `;
-
-        return;
-    }
-
-    subjects.forEach(
-        (subject, index) => {
-
-            const div =
-                document.createElement(
-                    "div"
-                );
-
-            div.className =
-                "manage-item";
-
-            div.innerHTML = `
-                <span>
-                    ${escapeHTML(subject)}
-                </span>
-
-                <button
-                    type="button"
-                    onclick="deleteSubject(${index})"
-                >
-                    🗑️ Delete
-                </button>
-            `;
-
-            container.appendChild(
-                div
-            );
-        }
-    );
-}
-
-
-/* =========================================================
-   QUESTION DROPDOWNS
-   ========================================================= */
-
-function populateQuestionSubjectSelect() {
-
-    const select =
-        document.getElementById(
-            "questionSubject"
-        );
-
-    if (!select) {
-        return;
-    }
-
-    const subjects =
-        getSubjects();
-
-    select.innerHTML = "";
-
-    subjects.forEach(
-        subject => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                subject;
-
-            option.textContent =
-                subject;
-
-            select.appendChild(option);
-        }
-    );
-}
-
-
-function populateQuestionDepartmentSelect() {
-
-    const select =
-        document.getElementById(
-            "questionDepartment"
-        );
-
-    if (!select) {
-        return;
-    }
-
-    const departments =
-        getDepartments();
-
-    select.innerHTML = "";
-
-    departments.forEach(
-        department => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                department;
-
-            option.textContent =
-                department;
-
-            select.appendChild(option);
-        }
-    );
-}
-
-
-/* =========================================================
-   AI DROPDOWNS
-   ========================================================= */
-
-function populateAIDepartmentSelect() {
-
-    const select =
-        document.getElementById(
-            "aiDepartment"
-        );
-
-    if (!select) {
-        return;
-    }
-
-    const departments =
-        getDepartments();
-
-    select.innerHTML = "";
-
-    departments.forEach(
-        department => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                department;
-
-            option.textContent =
-                department;
-
-            select.appendChild(option);
-        }
-    );
-}
-
-
-function populateAISubjectSelect() {
-
-    const select =
-        document.getElementById(
-            "aiSubject"
-        );
-
-    if (!select) {
-        return;
-    }
-
-    const subjects =
-        getSubjects();
-
-    select.innerHTML = "";
-
-    subjects.forEach(
-        subject => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                subject;
-
-            option.textContent =
-                subject;
-
-            select.appendChild(option);
-        }
-    );
-}
-
-
-/* =========================================================
-   QUESTION ID
-   ========================================================= */
-
-function getNextQuestionId() {
-
-    if (
-        allQuestions.length === 0
-    ) {
-        return 1;
-    }
-
-    const ids =
-        allQuestions
-            .map(q => Number(q.id))
-            .filter(
-                id => !isNaN(id)
-            );
-
-    if (
-        ids.length === 0
-    ) {
-        return 1;
-    }
-
-    return Math.max(
-        ...ids
-    ) + 1;
-}
-
-
-/* =========================================================
-   ADD / EDIT QUESTION
-   ========================================================= */
-
-async function saveQuestion(event) {
-
-    event.preventDefault();
-
-    await loadQuestions();
-
-    const question =
-        document.getElementById(
-            "questionText"
-        )?.value.trim();
-
-    const optionA =
-        document.getElementById(
-            "optionA"
-        )?.value.trim();
-
-    const optionB =
-        document.getElementById(
-            "optionB"
-        )?.value.trim();
-
-    const optionC =
-        document.getElementById(
-            "optionC"
-        )?.value.trim();
-
-    const optionD =
-        document.getElementById(
-            "optionD"
-        )?.value.trim();
-
-    const correctAnswer =
-        document.getElementById(
-            "correctAnswer"
-        )?.value;
-
-    const subject =
-        document.getElementById(
-            "questionSubject"
-        )?.value;
-
-    const department =
-        document.getElementById(
-            "questionDepartment"
-        )?.value;
-
-    const difficulty =
-        document.getElementById(
-            "questionDifficulty"
-        )?.value;
-
-    const editingId =
-        document.getElementById(
-            "editingQuestionId"
-        )?.value;
-
-    if (
-        !question ||
-        !optionA ||
-        !optionB ||
-        !optionC ||
-        !optionD ||
-        !correctAnswer ||
-        !subject ||
-        !department ||
-        !difficulty
-    ) {
-
-        showAdminMessage(
-            "Please fill in all question fields."
-        );
-
-        return;
-    }
-
-    const questionData = {
-
-        id:
-            editingId
-                ? Number(editingId)
-                : getNextQuestionId(),
-
-        year:
-            "1st Year",
-
-        subject:
-            subject,
-
-        department:
-            department,
-
-        difficulty:
-            difficulty,
-
-        question:
-            question,
-
-        optionA:
-            optionA,
-
-        optionB:
-            optionB,
-
-        optionC:
-            optionC,
-
-        optionD:
-            optionD,
-
-        correctAnswer:
-            correctAnswer
-    };
-
-    if (editingId) {
-
-        const index =
-            allQuestions.findIndex(
-                q =>
-                    Number(q.id) ===
-                    Number(editingId)
-            );
-
-        if (index !== -1) {
-
-            allQuestions[index] =
-                questionData;
-        }
-
-        showAdminMessage(
-            "Question updated successfully."
-        );
-
-    } else {
-
-        allQuestions.push(
-            questionData
-        );
-
-        showAdminMessage(
-            "Question added successfully."
-        );
-    }
-
-    saveQuestions();
-
-    resetQuestionForm();
-
-    renderAdminQuestions();
-}
-
-
-/* =========================================================
-   RESET QUESTION FORM
-   ========================================================= */
-
-function resetQuestionForm() {
-
-    const form =
-        document.getElementById(
-            "questionForm"
-        );
-
-    if (form) {
-        form.reset();
-    }
-
-    const editingId =
-        document.getElementById(
-            "editingQuestionId"
-        );
-
-    if (editingId) {
-
-        editingId.value = "";
-    }
-
-    const button =
-        document.getElementById(
-            "questionSubmitBtn"
-        );
-
-    if (button) {
-
-        button.textContent =
-            "➕ Add Question";
-    }
-
-    populateQuestionSubjectSelect();
-
-    populateQuestionDepartmentSelect();
-}
-
-
-/* =========================================================
-   EDIT QUESTION
-   ========================================================= */
-
-function editQuestion(id) {
-
-    const question =
-        allQuestions.find(
-            q =>
-                Number(q.id) ===
-                Number(id)
-        );
-
-    if (!question) {
-        return;
-    }
-
-    document.getElementById(
-        "questionText"
-    ).value =
-        question.question || "";
-
-    document.getElementById(
-        "optionA"
-    ).value =
-        question.optionA || "";
-
-    document.getElementById(
-        "optionB"
-    ).value =
-        question.optionB || "";
-
-    document.getElementById(
-        "optionC"
-    ).value =
-        question.optionC || "";
-
-    document.getElementById(
-        "optionD"
-    ).value =
-        question.optionD || "";
-
-    document.getElementById(
-        "correctAnswer"
-    ).value =
-        question.correctAnswer || "";
-
-    document.getElementById(
-        "questionSubject"
-    ).value =
-        question.subject || "";
-
-    document.getElementById(
-        "questionDepartment"
-    ).value =
-        question.department || "";
-
-    document.getElementById(
-        "questionDifficulty"
-    ).value =
-        question.difficulty || "Medium";
-
-    document.getElementById(
-        "editingQuestionId"
-    ).value =
-        question.id;
-
-    const button =
-        document.getElementById(
-            "questionSubmitBtn"
-        );
-
-    if (button) {
-
-        button.textContent =
-            "💾 Update Question";
-    }
-
-    document.getElementById(
-        "questionForm"
-    )?.scrollIntoView({
-        behavior: "smooth"
-    });
-}
-
-
-/* =========================================================
-   DELETE QUESTION
-   ========================================================= */
-
-function deleteQuestion(id) {
-
-    const question =
-        allQuestions.find(
-            q =>
-                Number(q.id) ===
-                Number(id)
-        );
-
-    if (!question) {
-        return;
-    }
-
-    const confirmed =
-        confirm(
-            "Are you sure you want to delete this question?"
-        );
-
-    if (!confirmed) {
-        return;
-    }
-
-    allQuestions =
-        allQuestions.filter(
-            q =>
-                Number(q.id) !==
-                Number(id)
-        );
-
-    saveQuestions();
-
-    renderAdminQuestions();
-
-    showAdminMessage(
-        "Question deleted successfully."
-    );
-}
-
-
-/* =========================================================
-   RENDER ADMIN QUESTIONS
-   ========================================================= */
-
-function renderAdminQuestions(
-    searchText = ""
-) {
-
-    const container =
-        document.getElementById(
-            "adminQuestionList"
-        );
-
-    if (!container) {
-        return;
-    }
-
-    const search =
-        searchText
-            .trim()
-            .toLowerCase();
-
-    let questions =
-        allQuestions;
-
-    if (search) {
-
-        questions =
-            questions.filter(
-                question => {
-
-                    const combined =
-                        `
-                        ${question.question || ""}
-                        ${question.subject || ""}
-                        ${question.department || ""}
-                        ${question.difficulty || ""}
-                        `.toLowerCase();
-
-                    return combined.includes(
-                        search
-                    );
-                }
-            );
-    }
-
-    container.innerHTML = "";
-
-    const count =
-        document.getElementById(
-            "questionCount"
-        );
-
-    if (count) {
-
-        count.textContent =
-            questions.length;
-    }
-
-    if (
-        questions.length === 0
-    ) {
-
-        container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-state-icon">
-                    📭
-                </div>
-
-                <p>
-                    No questions found.
-                </p>
-            </div>
-        `;
-
-        return;
-    }
-
-    questions.forEach(
-        question => {
-
-            const article =
-                document.createElement(
-                    "article"
-                );
-
-            article.className =
-                "admin-question";
-
-            const difficultyClass =
-                `difficulty-${
-                    String(
-                        question.difficulty ||
-                        ""
-                    ).toLowerCase()
-                }`;
-
-            article.innerHTML = `
-
-                <div class="admin-question-header">
-
-                    <div class="admin-question-title">
-
-                        Question ${escapeHTML(
-                            String(question.id)
-                        )}:
-
-                        ${escapeHTML(
-                            question.question
-                        )}
-
-                    </div>
-
-                </div>
-
-
-                <div class="admin-question-meta">
-
-                    <span class="badge">
-                        ${escapeHTML(
-                            question.subject || ""
-                        )}
-                    </span>
-
-                    <span class="badge">
-                        ${escapeHTML(
-                            question.department || ""
-                        )}
-                    </span>
-
-                    <span class="badge ${difficultyClass}">
-                        ${escapeHTML(
-                            question.difficulty || ""
-                        )}
-                    </span>
-
-                </div>
-
-
-                <div class="admin-question-options">
-
-                    <div class="
-                        admin-question-option
-                        ${
-                            question.correctAnswer === "A"
-                                ? "correct"
-                                : ""
-                        }
-                    ">
-                        A. ${escapeHTML(
-                            question.optionA || ""
-                        )}
-                    </div>
-
-
-                    <div class="
-                        admin-question-option
-                        ${
-                            question.correctAnswer === "B"
-                                ? "correct"
-                                : ""
-                        }
-                    ">
-                        B. ${escapeHTML(
-                            question.optionB || ""
-                        )}
-                    </div>
-
-
-                    <div class="
-                        admin-question-option
-                        ${
-                            question.correctAnswer === "C"
-                                ? "correct"
-                                : ""
-                        }
-                    ">
-                        C. ${escapeHTML(
-                            question.optionC || ""
-                        )}
-                    </div>
-
-
-                    <div class="
-                        admin-question-option
-                        ${
-                            question.correctAnswer === "D"
-                                ? "correct"
-                                : ""
-                        }
-                    ">
-                        D. ${escapeHTML(
-                            question.optionD || ""
-                        )}
-                    </div>
-
-                </div>
-
-
-                <div class="admin-question-actions">
-
-                    <button
-                        type="button"
-                        class="edit-btn"
-                        onclick="editQuestion(${Number(
-                            question.id
-                        )})"
-                    >
-                        ✏️ Edit
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="delete-btn"
-                        onclick="deleteQuestion(${Number(
-                            question.id
-                        )})"
-                    >
-                        🗑️ Delete
-                    </button>
-
-                </div>
-
-            `;
-
-            container.appendChild(
-                article
-            );
-        }
-    );
-}
-
-
-/* =========================================================
-   SEARCH QUESTIONS
-   ========================================================= */
-
-function filterAdminQuestions() {
-
-    const input =
-        document.getElementById(
-            "questionSearch"
-        );
-
-    renderAdminQuestions(
-        input
-            ? input.value
-            : ""
-    );
-}
-
-
-/* =========================================================
-   AI QUESTION GENERATOR
-   ========================================================= */
-
-async function generateAIQuestions() {
-
-    const department =
-        document.getElementById(
-            "aiDepartment"
-        )?.value.trim();
-
-    const subject =
-        document.getElementById(
-            "aiSubject"
-        )?.value.trim();
-
-    const difficulty =
-        document.getElementById(
-            "aiDifficulty"
-        )?.value || "Medium";
-
-    const count =
-        Number(
-            document.getElementById(
-                "aiCount"
-            )?.value || 3
-        );
-
-    const button =
-        document.getElementById(
-            "generateAIButton"
-        );
-
-    if (!department || !subject) {
-
-        showAIStatus(
-            "Please select a department and subject.",
-            "error"
-        );
-
-        return;
-    }
-
-    if (
-        count < 1 ||
-        count > 20
-    ) {
-
-        showAIStatus(
-            "Please choose between 1 and 20 questions.",
-            "error"
-        );
-
-        return;
-    }
-
-    if (button) {
-
-        button.disabled = true;
-
-        button.textContent =
-            "⏳ Generating...";
-    }
-
-    showAIStatus(
-        `Generating ${count} question(s) with Cloudflare AI...`,
-        "loading"
-    );
-
-    try {
-
-        const response =
-            await fetch(
-                AI_API_URL,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-
-                        department:
-                            department,
-
-                        subject:
-                            subject,
-
-                        difficulty:
-                            difficulty,
-
-                        count:
-                            count
-                    })
-                }
-            );
-
-        let data;
-
-        try {
-
-            data =
-                await response.json();
-
-        } catch {
-
-            throw new Error(
-                "Server returned an invalid response."
-            );
-        }
-
-        if (
-            !response.ok ||
-            !data.success
-        ) {
-
-            throw new Error(
-                data.error ||
-                `AI request failed (${response.status}).`
-            );
-        }
-
-        const generated =
-            Array.isArray(data.questions)
-                ? data.questions
-                : [];
-
-        if (
-            generated.length === 0
-        ) {
-
-            throw new Error(
-                "AI did not generate any valid questions."
-            );
-        }
-
-        await loadQuestions();
-
-        const startingId =
-            getNextQuestionId();
-
-        const convertedQuestions =
-            generated
-                .map(
-                    (q, index) =>
-                        convertAIQuestion(
-                            q,
-                            department,
-                            subject,
-                            difficulty,
-                            index,
-                            startingId
-                        )
-                )
-                .filter(Boolean);
-
-        if (
-            convertedQuestions.length === 0
-        ) {
-
-            throw new Error(
-                "AI questions could not be converted."
-            );
-        }
-
-        allQuestions.push(
-            ...convertedQuestions
-        );
-
-        saveQuestions();
-
-        renderAdminQuestions();
-
-        displayAIGeneratedQuestions(
-            generated
-        );
-
-        showAIStatus(
-            `${convertedQuestions.length} question(s) generated successfully and added to the question list.`,
-            "success"
-        );
-
-        showAdminMessage(
-            `${convertedQuestions.length} AI question(s) added successfully.`
-        );
-
-    } catch (error) {
-
-        console.error(
-            "AI generation error:",
-            error
-        );
-
-        showAIStatus(
-            error.message ||
-            "Unable to generate questions.",
-            "error"
-        );
-
-    } finally {
-
-        if (button) {
-
-            button.disabled = false;
-
-            button.textContent =
-                "✨ Generate Questions";
-        }
-    }
-}
-
-
-/* =========================================================
-   CONVERT AI QUESTION
-   ========================================================= */
-
-function convertAIQuestion(
-    aiQuestion,
-    department,
-    subject,
-    difficulty,
-    index,
-    startingId
-) {
-
-    if (!aiQuestion) {
-        return null;
-    }
-
-    const options =
-        Array.isArray(aiQuestion.options)
-            ? aiQuestion.options
-            : [];
-
-    if (
-        typeof aiQuestion.question !== "string" ||
-        options.length !== 4 ||
-        typeof aiQuestion.answer !== "string"
-    ) {
-
-        return null;
-    }
-
-    const correctIndex =
-        options.findIndex(
-            option =>
-                String(option).trim() ===
-                String(aiQuestion.answer).trim()
-        );
-
-    if (
-        correctIndex < 0 ||
-        correctIndex > 3
-    ) {
-
-        return null;
-    }
-
-    const correctKeys =
-        ["A", "B", "C", "D"];
-
-    return {
-
-        id:
-            startingId + index,
-
-        year:
-            "1st Year",
-
-        subject:
-            subject,
-
-        department:
-            department,
-
-        difficulty:
-            difficulty,
-
-        question:
-            aiQuestion.question.trim(),
-
-        optionA:
-            String(options[0]).trim(),
-
-        optionB:
-            String(options[1]).trim(),
-
-        optionC:
-            String(options[2]).trim(),
-
-        optionD:
-            String(options[3]).trim(),
-
-        correctAnswer:
-            correctKeys[correctIndex],
-
-        explanation:
-            typeof aiQuestion.explanation === "string"
-                ? aiQuestion.explanation.trim()
-                : "",
-
-        source:
-            "AI"
-    };
-}
-
-
-/* =========================================================
-   AI STATUS
-   ========================================================= */
-
-function showAIStatus(
-    message,
-    type = "loading"
-) {
-
-    const status =
-        document.getElementById(
-            "aiStatus"
-        );
-
-    if (!status) {
-        return;
-    }
-
-    status.textContent =
-        message;
-
-    status.className =
-        "ai-status";
-
-    if (type === "error") {
-
-        status.classList.add(
-            "error"
-        );
-
-    } else if (type === "success") {
-
-        status.classList.add(
-            "success"
-        );
-    }
-
-    status.style.display =
-        "block";
-}
-
-
-/* =========================================================
-   AI PREVIEW
-   ========================================================= */
-
-function displayAIGeneratedQuestions(
-    questions
-) {
-
-    const container =
-        document.getElementById(
-            "aiGeneratedList"
-        );
-
-    if (!container) {
-        return;
-    }
-
-    container.innerHTML = `
-        <h3>
-            ✨ Newly Generated Questions
-        </h3>
-    `;
-
-    questions.forEach(
-        (question, index) => {
-
-            const item =
-                document.createElement(
-                    "div"
-                );
-
-            item.className =
-                "ai-generated-item";
-
-            const options =
-                Array.isArray(question.options)
-                    ? question.options
-                    : [];
-
-            item.innerHTML = `
-
-                <h4>
-                    ${index + 1}.
-                    ${escapeHTML(
-                        question.question || ""
-                    )}
-                </h4>
-
-                <div class="ai-generated-options">
-
-                    <div>
-                        A. ${escapeHTML(
-                            options[0] || ""
-                        )}
-                    </div>
-
-                    <div>
-                        B. ${escapeHTML(
-                            options[1] || ""
-                        )}
-                    </div>
-
-                    <div>
-                        C. ${escapeHTML(
-                            options[2] || ""
-                        )}
-                    </div>
-
-                    <div>
-                        D. ${escapeHTML(
-                            options[3] || ""
-                        )}
-                    </div>
-
-                </div>
-
-                <div class="ai-generated-answer">
-                    Correct Answer:
-                    ${escapeHTML(
-                        question.answer || ""
-                    )}
-                </div>
-
-                <p class="muted">
-                    ${escapeHTML(
-                        question.explanation || ""
-                    )}
-                </p>
-            `;
-
-            container.appendChild(
-                item
-            );
-        }
-    );
-}
-
-
-function clearAIGeneratedQuestions() {
-
-    const container =
-        document.getElementById(
-            "aiGeneratedList"
-        );
-
-    const status =
-        document.getElementById(
-            "aiStatus"
-        );
-
-    if (container) {
-
-        container.innerHTML = "";
-    }
-
-    if (status) {
-
-        status.style.display =
-            "none";
-    }
-}
-
-
-/* =========================================================
-   HTML ESCAPE
-   ========================================================= */
-
-function escapeHTML(value) {
-
-    const div =
-        document.createElement(
-            "div"
-        );
-
-    div.textContent =
-        value ?? "";
-
-    return div.innerHTML;
-}
-
-
-/* =========================================================
-   PAGE INITIALIZATION
-   ========================================================= */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    async () => {
-
-        const page =
-            location.pathname
-                .split("/")
-                .pop()
-                .toLowerCase();
-
-
-        /* -------------------------
-           Verification
-           ------------------------- */
-
-        if (
-            page ===
-            "verification.html"
-        ) {
-
-            generateCaptcha();
-        }
-
-
-        /* -------------------------
-           Dashboard
-           ------------------------- */
-
-        if (
-            page ===
-            "dashboard.html"
-        ) {
-
-            loadDashboard();
-        }
-
-
-        /* -------------------------
-           Quiz
-           ------------------------- */
-
-        if (
-            page ===
-            "quiz.html"
-        ) {
-
-            localStorage.removeItem(
-                "engiSparkQuizSubmitted"
-            );
-
-            await prepareQuiz();
-        }
-
-
-        /* -------------------------
-           Result
-           ------------------------- */
-
-        if (
-            page ===
-            "result.html"
-        ) {
-
-            loadResult();
-        }
-
-
-        /* -------------------------
-           Admin Panel
-           ------------------------- */
-
-        if (
-            page ===
-            "admin-panel.html"
-        ) {
-
-            checkAdminAccess();
-
-            await loadQuestions();
-
-
-            /* TIMER */
-
-            const timerSelect =
-                document.getElementById(
-                    "adminTimer"
-                );
-
-            const currentTimer =
-                document.getElementById(
-                    "currentTimer"
-                );
-
-            const timer =
-                getTimerSetting();
-
-            if (timerSelect) {
-
-                timerSelect.value =
-                    String(timer);
-            }
-
-            if (currentTimer) {
-
-                currentTimer.textContent =
-                    `${timer} Minutes`;
-            }
-
-
-            /* DEPARTMENTS */
-
-            renderDepartmentList();
-
-            populateQuestionDepartmentSelect();
-
-            populateAIDepartmentSelect();
-
-
-            /* SUBJECTS */
-
-            renderSubjectList();
-
-            populateQuestionSubjectSelect();
-
-            populateAISubjectSelect();
-
-
-            /* QUESTIONS */
-
-            renderAdminQuestions();
-        }
-
-    }
-);
+.btn-submit {
+    margin: 0 30px 30px;
+    max-width: 800px;
+    align-self: center;
+    width: 100%;
+    padding: 15px;
+    font-size: 
