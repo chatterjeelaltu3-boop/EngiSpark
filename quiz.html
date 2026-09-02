@@ -1,152 +1,52 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Quiz - EngiSpark</title>
-
+    <title>EngiSpark — Quiz</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="engispark-logo.png">
 </head>
-
-<body class="page">
-
-    <!-- ================= HEADER ================= -->
-
-    <header>
-
-        <a href="dashboard.html" class="brand">
-
-            <img
-                src="engispark-logo.png"
-                alt="EngiSpark Logo"
-            >
-
-            <span>EngiSpark</span>
-
-        </a>
-
-        <!-- Timer -->
-
-        <div class="quiz-timer">
-            ⏱️ <span id="timer">00:00</span>
-        </div>
-
-    </header>
-
-
-    <!-- ================= QUIZ CONTENT ================= -->
-
-    <main class="container">
-
-        <!-- Question Information -->
-
-        <div class="row">
-
-            <b id="questionNumber">
-                Question 1/10
-            </b>
-
-            <b id="quizSubject">
-                Mathematics
-            </b>
-
-        </div>
-
-
-        <!-- Progress Bar -->
-
-        <div class="progress">
-
-            <i id="progressBar"></i>
-
-        </div>
-
-
-        <!-- Question Card -->
-
-        <section class="card quiz-card">
-
-            <h1 id="questionText">
-                Loading question...
-            </h1>
-
-
-            <!-- Options -->
-
-            <div id="options">
-
-                <!-- Options will be created by JavaScript -->
-
+<body>
+    <div class="quiz-container">
+        <header class="quiz-header">
+            <div class="header-left">
+                <img src="engispark-logo.png" alt="EngiSpark Logo" class="header-logo">
+                <span class="header-app-name">EngiSpark</span>
             </div>
-
-        </section>
-
-
-        <!-- ================= NAVIGATION ================= -->
-
-        <div class="row nav">
-
-            <button
-                type="button"
-                id="prevBtn"
-                class="secondary"
-                onclick="previousQuestion()"
-            >
-                ◄ Previous
-            </button>
-
-
-            <button
-                type="button"
-                id="nextBtn"
-                class="secondary"
-                onclick="nextQuestion()"
-            >
-                Next ►
-            </button>
-
+            <div class="header-right">
+                <span id="timerDisplay" class="timer">⏱️ 15:00</span>
+            </div>
+        </header>
+        <div class="quiz-progress">
+            <span id="questionCounter">প্রশ্ন ১/১০</span>
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill" style="width:10%"></div>
+            </div>
         </div>
-
-
-        <!-- ================= SUBMIT ================= -->
-
-        <button
-            type="button"
-            class="submit"
-            onclick="submitQuiz(false)"
-        >
-            ✔ Submit Quiz
-        </button>
-
-    </main>
-
-
-    <!-- ================= FOOTER ================= -->
-
-    <footer>
-
-        <div>
-            <strong>EngiSpark</strong>
-            — Ignite Your Engineering Mind
+        <div class="question-area">
+            <h3 id="questionText">প্রশ্ন লোড হচ্ছে...</h3>
+            <div id="optionsContainer" class="options-container"></div>
         </div>
-
-        <div>
-            Made by Ayush Chatterjee
+        <div class="quiz-navigation">
+            <button onclick="prevQuestion()" class="btn-nav" id="prevBtn">◄ আগে</button>
+            <button onclick="nextQuestion()" class="btn-nav" id="nextBtn">পরে ►</button>
         </div>
-
-        <div>
-            © 2026 EngiSpark. All rights reserved.
-        </div>
-
-    </footer>
-
-
-    <!-- ================= JAVASCRIPT ================= -->
-
+        <button onclick="submitQuiz()" class="btn-primary btn-submit">✔ সাবমিট</button>
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="engispark-logo.png" alt="EngiSpark Logo" class="footer-logo-img">
+                    <span class="footer-app-name">EngiSpark</span>
+                </div>
+                <p class="footer-tagline">Ignite Your Engineering Mind</p>
+                <p class="footer-founder">
+                    Founder: <a href="https://engispark.com" target="_blank">EngiSpark.com</a>
+                </p>
+                <p class="footer-copyright">© 2026 EngiSpark. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
     <script src="script.js"></script>
-
 </body>
-
 </html>
