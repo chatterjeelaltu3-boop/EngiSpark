@@ -1,0 +1,11 @@
+name = "btech-question-gen"
+main = "src/index.js"
+compatibility_date = "2024-03-01"
+
+[ai]
+binding = "AI"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "my-db"
+database_id = ""
