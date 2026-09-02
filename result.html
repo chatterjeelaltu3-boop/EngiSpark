@@ -1,234 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Quiz Result - EngiSpark</title>
-
+    <title>EngiSpark — Result</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="engispark-logo.png">
 </head>
-
-<body class="page">
-
-    <!-- ================= HEADER ================= -->
-
-    <header>
-
-        <a href="dashboard.html" class="brand">
-
-            <img
-                src="engispark-logo.png"
-                alt="EngiSpark Logo"
-            >
-
-            <span>EngiSpark</span>
-
-        </a>
-
-    </header>
-
-
-    <!-- ================= RESULT CONTENT ================= -->
-
-    <main class="container result-page">
-
-        <!-- Logo -->
-
-        <section class="result-header">
-
-            <img
-                src="engispark-logo.png"
-                alt="EngiSpark Logo"
-                class="result-logo"
-            >
-
-            <p class="tagline">
-                Ignite Your Engineering Mind
-            </p>
-
-        </section>
-
-
-        <!-- Result Title -->
-
-        <section class="card result-card">
-
-            <div class="result-icon">
-                🎉
+<body>
+    <div class="result-container">
+        <div class="result-logo">
+            <img src="engispark-logo.png" alt="EngiSpark Logo" class="result-logo-img">
+            <h1 class="result-app-name">EngiSpark</h1>
+            <p class="result-tagline">Ignite Your Engineering Mind</p>
+        </div>
+        <div class="result-box">
+            <h2>🎉 রেজাল্ট!</h2>
+            <div class="result-score">
+                <span id="scoreDisplay" class="score-number">৮/১০</span>
+                <span id="percentageDisplay" class="score-percentage">⭐⭐⭐⭐⭐ (৮০%)</span>
             </div>
-
-            <h1>
-                Quiz Result!
-            </h1>
-
-            <!-- Score -->
-
-            <div class="score">
-
-                <span id="score">
-                    0/10
-                </span>
-
-                <div
-                    id="percentage"
-                    class="percentage"
-                >
-                    0%
-                </div>
-
-            </div>
-
-
-            <!-- Stars -->
-
-            <div
-                id="stars"
-                class="stars"
-                aria-label="Quiz rating"
-            >
-                ⭐⭐⭐⭐⭐
-            </div>
-
-
-            <!-- Correct / Wrong -->
-
             <div class="result-stats">
-
-                <div class="stat correct">
-
-                    <span class="stat-icon">
-                        ✔
-                    </span>
-
-                    <strong id="correctCount">
-                        0
-                    </strong>
-
-                    <small>
-                        Correct
-                    </small>
-
+                <div class="stat-card correct">✔ সঠিক: <span id="correctCount">৮</span>টি</div>
+                <div class="stat-card wrong">✘ ভুল: <span id="wrongCount">২</span>টি</div>
+            </div>
+            <div class="result-time">⏱️ সময় লেগেছে: <span id="timeTaken">১২ মিনিট ৩০ সেকেন্ড</span></div>
+            <div class="wrong-answers">
+                <h4>❌ ভুল উত্তরগুলো</h4>
+                <div id="wrongAnswersList"></div>
+            </div>
+            <div class="result-buttons">
+                <button onclick="retakeQuiz()" class="btn-primary btn-retake">🔄 Retake Quiz</button>
+                <button onclick="goHome()" class="btn-secondary btn-home">🏠 হোম</button>
+            </div>
+        </div>
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="engispark-logo.png" alt="EngiSpark Logo" class="footer-logo-img">
+                    <span class="footer-app-name">EngiSpark</span>
                 </div>
-
-
-                <div class="stat wrong">
-
-                    <span class="stat-icon">
-                        ✘
-                    </span>
-
-                    <strong id="wrongCount">
-                        0
-                    </strong>
-
-                    <small>
-                        Wrong
-                    </small>
-
-                </div>
-
+                <p class="footer-tagline">Ignite Your Engineering Mind</p>
+                <p class="footer-founder">
+                    Founder: <a href="https://engispark.com" target="_blank">EngiSpark.com</a>
+                </p>
+                <p class="footer-copyright">© 2026 EngiSpark. All rights reserved.</p>
             </div>
-
-
-            <!-- Time -->
-
-            <div class="time-result">
-
-                ⏱️ Time Taken:
-
-                <strong id="timeTaken">
-                    0 minutes 0 seconds
-                </strong>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= WRONG ANSWERS ================= -->
-
-        <section
-            id="wrongAnswersSection"
-            class="card wrong-answers"
-        >
-
-            <h2>
-                ❌ Incorrect Answers
-            </h2>
-
-            <div id="wrongAnswersList">
-
-                <!-- Wrong answers will be added by JavaScript -->
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= BUTTONS ================= -->
-
-        <div class="result-actions">
-
-            <button
-                type="button"
-                class="primary"
-                onclick="retakeQuiz()"
-            >
-                🔄 Retake Quiz
-            </button>
-
-
-            <button
-                type="button"
-                class="secondary"
-                onclick="location.href='dashboard.html'"
-            >
-                🏠 Home
-            </button>
-
-        </div>
-
-    </main>
-
-
-    <!-- ================= FOOTER ================= -->
-
-    <footer>
-
-        <div>
-            <strong>EngiSpark</strong>
-            — Ignite Your Engineering Mind
-        </div>
-
-        <div>
-            Made by Ayush Chatterjee
-        </div>
-
-        <div>
-
-            <a
-                href="https://founderappernam.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                founderappernam.com
-            </a>
-
-        </div>
-
-        <div>
-            © 2026 EngiSpark. All rights reserved.
-        </div>
-
-    </footer>
-
-
-    <!-- ================= JAVASCRIPT ================= -->
-
+        </footer>
+    </div>
     <script src="script.js"></script>
-
 </body>
-
 </html>
