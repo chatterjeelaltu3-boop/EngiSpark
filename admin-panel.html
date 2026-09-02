@@ -1,1027 +1,126 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Admin Panel - EngiSpark</title>
-
+    <title>EngiSpark — Admin Panel</title>
     <link rel="stylesheet" href="style.css">
-
-    <style>
-        /* ================= MOBILE ADMIN PANEL ================= */
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            overflow-x: hidden;
-        }
-
-        .admin-container {
-            width: 100%;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        .admin-form-row {
-            display: flex;
-            gap: 16px;
-            align-items: flex-end;
-            flex-wrap: wrap;
-        }
-
-        .admin-form-row .form-group {
-            flex: 1;
-            min-width: 220px;
-        }
-
-        .admin-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 16px;
-        }
-
-        .options-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 16px;
-        }
-
-        .form-actions {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .form-actions button {
-            min-width: 150px;
-        }
-
-        /* AI SECTION */
-
-        .ai-generator {
-            border: 2px solid #2563eb;
-        }
-
-        .ai-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 999px;
-            background: #eff6ff;
-            color: #1d4ed8;
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .ai-form-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 16px;
-        }
-
-        .ai-actions {
-            margin-top: 18px;
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .ai-actions button {
-            min-height: 46px;
-        }
-
-        .ai-status {
-            display: none;
-            margin-top: 16px;
-            padding: 12px 15px;
-            border-radius: 10px;
-            background: #eff6ff;
-            color: #1d4ed8;
-            font-weight: 600;
-        }
-
-        .ai-status.error {
-            background: #fef2f2;
-            color: #b91c1c;
-        }
-
-        .ai-status.success {
-            background: #ecfdf5;
-            color: #047857;
-        }
-
-        .ai-generated-list {
-            margin-top: 20px;
-        }
-
-        .ai-generated-item {
-            border: 1px solid #dbeafe;
-            border-radius: 12px;
-            padding: 15px;
-            margin-top: 12px;
-            background: #f8fbff;
-        }
-
-        .ai-generated-item h4 {
-            margin-bottom: 10px;
-        }
-
-        .ai-generated-options {
-            display: grid;
-            gap: 6px;
-            font-size: 14px;
-        }
-
-        .ai-generated-answer {
-            margin-top: 10px;
-            font-weight: 700;
-        }
-
-        /* FOOTER */
-
-        footer {
-            text-align: center;
-            padding: 25px 15px;
-            margin-top: 30px;
-            line-height: 1.8;
-        }
-
-        footer a {
-            word-break: break-word;
-        }
-
-        /* PHONE */
-
-        @media (max-width: 768px) {
-
-            header {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 12px;
-            }
-
-            .header-actions {
-                display: flex;
-                width: 100%;
-                gap: 8px;
-            }
-
-            .header-actions button {
-                flex: 1;
-                min-height: 44px;
-            }
-
-            .admin-container {
-                padding-left: 12px;
-                padding-right: 12px;
-            }
-
-            .welcome-section h1 {
-                font-size: 25px;
-            }
-
-            .admin-section {
-                padding: 16px !important;
-            }
-
-            .admin-form-row,
-            .ai-form-grid {
-                grid-template-columns: 1fr;
-                display: grid;
-            }
-
-            .admin-form-row .form-group {
-                min-width: 0;
-            }
-
-            .admin-form-row button,
-            .ai-actions button {
-                width: 100%;
-            }
-
-            .admin-grid,
-            .options-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .form-actions {
-                flex-direction: column;
-            }
-
-            .form-actions button {
-                width: 100%;
-            }
-
-            input,
-            select,
-            textarea,
-            button {
-                max-width: 100%;
-            }
-
-            .admin-question {
-                overflow-wrap: anywhere;
-            }
-
-            .admin-question-actions {
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 8px;
-            }
-
-            .manage-item {
-                gap: 10px;
-                flex-wrap: wrap;
-            }
-
-            footer {
-                font-size: 13px;
-            }
-        }
-
-        @media (max-width: 420px) {
-
-            .welcome-section h1 {
-                font-size: 22px;
-            }
-
-            .admin-section h2 {
-                font-size: 19px;
-            }
-
-            .card {
-                border-radius: 14px;
-            }
-
-            footer {
-                padding: 20px 10px;
-            }
-        }
-    </style>
+    <link rel="icon" href="engispark-logo.png">
 </head>
-
-<body class="page">
-
-    <!-- ================= HEADER ================= -->
-
-    <header>
-
-        <a href="dashboard.html" class="brand">
-
-            <img
-                src="engispark-logo.png"
-                alt="EngiSpark Logo"
-            >
-
-            <span>EngiSpark</span>
-
-        </a>
-
-        <div class="header-actions">
-
-            <button
-                type="button"
-                class="secondary"
-                onclick="location.href='dashboard.html'"
-            >
-                🏠 Dashboard
-            </button>
-
-            <button
-                type="button"
-                class="danger"
-                onclick="adminLogout()"
-            >
-                Logout
-            </button>
-
-        </div>
-
-    </header>
-
-
-    <!-- ================= MAIN ================= -->
-
-    <main class="container admin-container">
-
-        <!-- PAGE TITLE -->
-
-        <section class="welcome-section">
-
-            <h1>
-                🛠️ Admin Dashboard
-            </h1>
-
-            <p class="muted">
-                Manage EngiSpark quiz settings, subjects,
-                departments and questions.
-            </p>
-
-        </section>
-
-
-        <!-- ================= ADMIN MESSAGE ================= -->
-
-        <div
-            id="adminMessage"
-            class="notice"
-            style="display:none;"
-        >
-
-            <span id="adminMessageText"></span>
-
-            <button
-                type="button"
-                onclick="hideAdminMessage()"
-                aria-label="Close"
-            >
-                ×
-            </button>
-
-        </div>
-
-
-        <!-- ================= AI QUESTION GENERATOR ================= -->
-
-        <section class="card admin-section ai-generator">
-
-            <div class="section-heading">
-
-                <div>
-
-                    <span class="ai-badge">
-                        ✨ Cloudflare AI
-                    </span>
-
-                    <h2>
-                        🤖 Generate Questions with AI
-                    </h2>
-
-                    <p class="muted">
-                        Generate new MCQ questions automatically
-                        and add them to EngiSpark.
-                    </p>
-
-                </div>
-
+<body>
+    <div class="admin-panel-container">
+        <header class="admin-panel-header">
+            <div class="header-left">
+                <img src="engispark-logo.png" alt="EngiSpark Logo" class="header-logo">
+                <span class="header-app-name">EngiSpark</span>
             </div>
-
-
-            <div class="ai-form-grid">
-
-                <!-- Department -->
-
-                <div class="form-group">
-
-                    <label for="aiDepartment">
-                        Department
-                    </label>
-
-                    <select id="aiDepartment">
-                    </select>
-
-                </div>
-
-
-                <!-- Subject -->
-
-                <div class="form-group">
-
-                    <label for="aiSubject">
-                        Subject
-                    </label>
-
-                    <select id="aiSubject">
-                    </select>
-
-                </div>
-
-
-                <!-- Difficulty -->
-
-                <div class="form-group">
-
-                    <label for="aiDifficulty">
-                        Difficulty
-                    </label>
-
-                    <select id="aiDifficulty">
-
-                        <option value="Easy">
-                            Easy
-                        </option>
-
-                        <option value="Medium" selected>
-                            Medium
-                        </option>
-
-                        <option value="Hard">
-                            Hard
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- Count -->
-
-                <div class="form-group">
-
-                    <label for="aiCount">
-                        Number of Questions
-                    </label>
-
-                    <select id="aiCount">
-
-                        <option value="1">
-                            1
-                        </option>
-
-                        <option value="3" selected>
-                            3
-                        </option>
-
-                        <option value="5">
-                            5
-                        </option>
-
-                        <option value="10">
-                            10
-                        </option>
-
-                        <option value="20">
-                            20
-                        </option>
-
-                    </select>
-
-                </div>
-
+            <div class="header-right">
+                <button onclick="logoutAdmin()" class="btn-logout">🚪 লগআউট</button>
             </div>
-
-
-            <div class="ai-actions">
-
-                <button
-                    type="button"
-                    class="primary"
-                    id="generateAIButton"
-                    onclick="generateAIQuestions()"
-                >
-                    ✨ Generate Questions
-                </button>
-
-                <button
-                    type="button"
-                    class="secondary"
-                    onclick="clearAIGeneratedQuestions()"
-                >
-                    🗑️ Clear Preview
-                </button>
-
-            </div>
-
-
-            <div
-                id="aiStatus"
-                class="ai-status"
-            ></div>
-
-
-            <div
-                id="aiGeneratedList"
-                class="ai-generated-list"
-            ></div>
-
-        </section>
-
-
-        <!-- ================= TIMER MANAGEMENT ================= -->
-
-        <section class="card admin-section">
-
-            <div class="section-heading">
-
-                <div>
-
-                    <h2>
-                        ⏱️ Timer Management
-                    </h2>
-
-                    <p class="muted">
-                        Set the available quiz time.
-                    </p>
-
-                </div>
-
-            </div>
-
-
+        </header>
+        <h2 class="admin-panel-title">🛠️ অ্যাডমিন ড্যাশবোর্ড</h2>
+        
+        <section class="admin-section">
+            <h3>⏱️ টাইমার এডিট</h3>
             <div class="admin-form-row">
-
-                <div class="form-group">
-
-                    <label for="adminTimer">
-                        New Quiz Time
-                    </label>
-
-                    <select id="adminTimer">
-
-                        <option value="10">
-                            10 Minutes
-                        </option>
-
-                        <option value="15">
-                            15 Minutes
-                        </option>
-
-                        <option value="20">
-                            20 Minutes
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <button
-                    type="button"
-                    class="primary"
-                    onclick="updateTimerSetting()"
-                >
-                    💾 Update Timer
-                </button>
-
+                <input type="number" id="timeInput" value="15" min="5" max="60" class="form-input">
+                <span>মিনিট</span>
+                <button onclick="updateTimer()" class="btn-primary">আপডেট</button>
             </div>
-
-
-            <p class="current-setting">
-
-                Current Time:
-
-                <strong id="currentTimer">
-                    15 Minutes
-                </strong>
-
-            </p>
-
         </section>
 
-
-        <!-- ================= DEPARTMENT MANAGEMENT ================= -->
-
-        <section class="card admin-section">
-
-            <div class="section-heading">
-
-                <div>
-
-                    <h2>
-                        🏢 Department Management
-                    </h2>
-
-                    <p class="muted">
-                        Add or remove departments.
-                    </p>
-
-                </div>
-
-            </div>
-
-
+        <section class="admin-section">
+            <h3>🏢 ডিপার্টমেন্ট ম্যানেজ</h3>
             <div class="admin-form-row">
-
-                <div class="form-group">
-
-                    <label for="newDepartment">
-                        Add New Department
-                    </label>
-
-                    <input
-                        type="text"
-                        id="newDepartment"
-                        placeholder="Enter department name"
-                    >
-
-                </div>
-
-
-                <button
-                    type="button"
-                    class="primary"
-                    onclick="addDepartment()"
-                >
-                    ➕ Add
-                </button>
-
+                <input type="text" id="deptInput" placeholder="নতুন ডিপার্টমেন্ট" class="form-input">
+                <button onclick="addDepartment()" class="btn-primary">➕ অ্যাড</button>
             </div>
-
-
-            <div class="manage-list">
-
-                <h3>
-                    Current Departments
-                </h3>
-
-                <div id="departmentList"></div>
-
-            </div>
-
+            <div id="deptList" class="admin-list"></div>
         </section>
 
-
-        <!-- ================= SUBJECT MANAGEMENT ================= -->
-
-        <section class="card admin-section">
-
-            <div class="section-heading">
-
-                <div>
-
-                    <h2>
-                        📚 Subject Management
-                    </h2>
-
-                    <p class="muted">
-                        Add or remove quiz subjects.
-                    </p>
-
-                </div>
-
-            </div>
-
-
+        <section class="admin-section">
+            <h3>📖 সাবজেক্ট ম্যানেজ</h3>
             <div class="admin-form-row">
-
-                <div class="form-group">
-
-                    <label for="newSubject">
-                        Add New Subject
-                    </label>
-
-                    <input
-                        type="text"
-                        id="newSubject"
-                        placeholder="Enter subject name"
-                    >
-
-                </div>
-
-
-                <button
-                    type="button"
-                    class="primary"
-                    onclick="addSubject()"
-                >
-                    ➕ Add
-                </button>
-
+                <input type="text" id="subjectInput" placeholder="নতুন সাবজেক্ট" class="form-input">
+                <button onclick="addSubject()" class="btn-primary">➕ অ্যাড</button>
             </div>
-
-
-            <div class="manage-list">
-
-                <h3>
-                    Current Subjects
-                </h3>
-
-                <div id="subjectList"></div>
-
-            </div>
-
+            <div id="subjectList" class="admin-list"></div>
         </section>
 
-
-        <!-- ================= QUESTION MANAGEMENT ================= -->
-
-        <section class="card admin-section">
-
-            <div class="section-heading">
-
-                <div>
-
-                    <h2>
-                        ❓ Question Management
-                    </h2>
-
-                    <p class="muted">
-                        Add, edit or delete quiz questions.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <form
-                id="questionForm"
-                onsubmit="saveQuestion(event)"
-            >
-
-                <!-- QUESTION -->
-
+        <section class="admin-section">
+            <h3>❓ প্রশ্ন ম্যানেজ</h3>
+            <div class="question-form">
                 <div class="form-group">
-
-                    <label for="questionText">
-                        Question
-                    </label>
-
-                    <textarea
-                        id="questionText"
-                        rows="4"
-                        placeholder="Enter question"
-                        required
-                    ></textarea>
-
+                    <label>প্রশ্ন</label>
+                    <input type="text" id="qText" placeholder="প্রশ্ন লিখুন" class="form-input">
                 </div>
-
-
-                <!-- OPTIONS -->
-
-                <div class="options-grid">
-
+                <div class="form-row-2">
                     <div class="form-group">
-
-                        <label for="optionA">
-                            Option A
-                        </label>
-
-                        <input
-                            type="text"
-                            id="optionA"
-                            placeholder="Enter option A"
-                            required
-                        >
-
+                        <label>অপশন ক</label>
+                        <input type="text" id="qOptA" placeholder="অপশন ক" class="form-input">
                     </div>
-
-
                     <div class="form-group">
-
-                        <label for="optionB">
-                            Option B
-                        </label>
-
-                        <input
-                            type="text"
-                            id="optionB"
-                            placeholder="Enter option B"
-                            required
-                        >
-
+                        <label>অপশন খ</label>
+                        <input type="text" id="qOptB" placeholder="অপশন খ" class="form-input">
                     </div>
-
-
-                    <div class="form-group">
-
-                        <label for="optionC">
-                            Option C
-                        </label>
-
-                        <input
-                            type="text"
-                            id="optionC"
-                            placeholder="Enter option C"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="optionD">
-                            Option D
-                        </label>
-
-                        <input
-                            type="text"
-                            id="optionD"
-                            placeholder="Enter option D"
-                            required
-                        >
-
-                    </div>
-
                 </div>
-
-
-                <!-- DETAILS -->
-
-                <div class="admin-grid">
-
+                <div class="form-row-2">
                     <div class="form-group">
-
-                        <label for="correctAnswer">
-                            Correct Answer
-                        </label>
-
-                        <select
-                            id="correctAnswer"
-                            required
-                        >
-
-                            <option value="">
-                                Select correct answer
-                            </option>
-
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                            <option value="D">D</option>
-
+                        <label>অপশন গ</label>
+                        <input type="text" id="qOptC" placeholder="অপশন গ" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>অপশন ঘ</label>
+                        <input type="text" id="qOptD" placeholder="অপশন ঘ" class="form-input">
+                    </div>
+                </div>
+                <div class="form-row-3">
+                    <div class="form-group">
+                        <label>সঠিক উত্তর</label>
+                        <select id="qCorrect" class="form-select">
+                            <option value="A">ক</option>
+                            <option value="B">খ</option>
+                            <option value="C">গ</option>
+                            <option value="D">ঘ</option>
                         </select>
-
                     </div>
-
-
                     <div class="form-group">
-
-                        <label for="questionSubject">
-                            Subject
-                        </label>
-
-                        <select
-                            id="questionSubject"
-                            required
-                        ></select>
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="questionDepartment">
-                            Department
-                        </label>
-
-                        <select
-                            id="questionDepartment"
-                            required
-                        ></select>
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="questionDifficulty">
-                            Difficulty
-                        </label>
-
-                        <select
-                            id="questionDifficulty"
-                            required
-                        >
-
-                            <option value="Easy">
-                                Easy
-                            </option>
-
-                            <option value="Medium" selected>
-                                Medium
-                            </option>
-
-                            <option value="Hard">
-                                Hard
-                            </option>
-
+                        <label>সাবজেক্ট</label>
+                        <select id="qSubject" class="form-select">
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Basic Electrical">Basic Electrical</option>
                         </select>
-
                     </div>
-
+                    <div class="form-group">
+                        <label>ডিফিকাল্টি</label>
+                        <select id="qDifficulty" class="form-select">
+                            <option value="Easy">Easy</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Hard">Hard</option>
+                        </select>
+                    </div>
                 </div>
-
-
-                <input
-                    type="hidden"
-                    id="editingQuestionId"
-                    value=""
-                >
-
-
-                <div class="form-actions">
-
-                    <button
-                        type="submit"
-                        class="primary"
-                        id="questionSubmitBtn"
-                    >
-                        ➕ Add Question
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="secondary"
-                        onclick="resetQuestionForm()"
-                    >
-                        ↻ Clear
-                    </button>
-
-                </div>
-
-            </form>
-
+                <button onclick="addQuestion()" class="btn-primary">➕ অ্যাড প্রশ্ন</button>
+            </div>
+            <div id="questionList" class="question-list"></div>
         </section>
 
-
-        <!-- ================= QUESTION LIST ================= -->
-
-        <section class="card admin-section">
-
-            <div class="section-heading">
-
-                <div>
-
-                    <h2>
-                        📋 All Questions
-                    </h2>
-
-                    <p class="muted">
-                        Manage all questions stored in EngiSpark.
-                    </p>
-
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="engispark-logo.png" alt="EngiSpark Logo" class="footer-logo-img">
+                    <span class="footer-app-name">EngiSpark</span>
                 </div>
-
-                <div class="question-count">
-
-                    Total:
-
-                    <strong id="questionCount">
-                        0
-                    </strong>
-
-                </div>
-
+                <p class="footer-tagline">Ignite Your Engineering Mind</p>
+                <p class="footer-founder">
+                    Founder: <a href="https://engispark.com" target="_blank">EngiSpark.com</a>
+                </p>
+                <p class="footer-copyright">© 2026 EngiSpark. All rights reserved.</p>
             </div>
-
-
-            <div class="form-group">
-
-                <label for="questionSearch">
-                    Search Questions
-                </label>
-
-                <input
-                    type="search"
-                    id="questionSearch"
-                    placeholder="Search by question, subject or department..."
-                    oninput="filterAdminQuestions()"
-                >
-
-            </div>
-
-
-            <div
-                id="adminQuestionList"
-                class="admin-question-list"
-            ></div>
-
-        </section>
-
-    </main>
-
-
-    <!-- ================= FOOTER ================= -->
-
-    <footer>
-
-        <div>
-            <strong>EngiSpark</strong>
-            — Ignite Your Engineering Mind
-        </div>
-
-        <div>
-            Made by Ayush Chatterjee
-        </div>
-
-        <div>
-            <a
-                href="https://founderappernam.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                founderappernam.com
-            </a>
-        </div>
-
-        <div>
-            © 2026 EngiSpark. All rights reserved.
-        </div>
-
-    </footer>
-
-
+        </footer>
+    </div>
     <script src="script.js"></script>
-
 </body>
-
 </html>
