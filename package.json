@@ -1,0 +1,6 @@
+{
+  "name": "btech-gen",
+  "devDependencies": {
+    "wrangler": "latest"
+  }
+}
